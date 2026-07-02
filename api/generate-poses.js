@@ -1,0 +1,39 @@
+// POST /api/generate-poses
+// Body: { lockedCharacterBlock: string }
+// Returns: { frontUrl: string } — blocking call, waits for the generation.
+
+const { HiggsfieldClient } = require('@higgsfield/client');
+const { buildPosePrompt } = require('./_prompt');
+
+const higgsfield = new HiggsfieldClient({
+  apiKey: process.env.HIGGSFIELD_API_KEY,
+  apiSecret: process.env.HIGGSFIELD_API_SECRET
+});
+
+const MODEL = 'nano_banana_pro';
+
+module.exports = async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+  if (!process.env.HIGGSFIELD_API_KEY || !process.env.HIGGSFIELD_API_SECRET) {
+    return res.status(500).json({ error: 'Higgsfield credentials not set on the server' });
+  }
+
+  const { lockedCharacterBlock } = req.body || {};
+  if (!lockedCharacterBlock) {
+    return res.status(400).json({ error: 'lockedCharacterBlock required' });
+  }
+
+  try {
+    const result = await higgsfield.subscribe(MODEL, {
+      input: {
+        prompt: buildPosePrompt(lockedCharacterBlock, 'front'),
+        aspect_ratio: '3:4'
+      }
+    });
+    const frontUrl = result?.images?.[0]?.url;
+    if (!frontUrl) return res.status(502).json({ error: 'No image returned', raw: result });
+    return res.status(200).json({ frontUrl });
+  } catch (err) {
+    return res.status(500).json({ error: String(err) });
+  }
+};

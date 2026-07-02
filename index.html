@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build your mascot · Studiyo</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%2234%2034%2060%2060%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20x%3D%2234%22%20y%3D%2234%22%20width%3D%2260%22%20height%3D%2260%22%20fill%3D%22white%22/%3E%3Cpath%20d%3D%22M92.496%2066.6582C92.496%2071.26%2090.6295%2075.4274%2087.6138%2078.4456C84.5956%2081.4612%2080.4282%2083.3277%2075.8264%2083.3277H70.5224C75.1242%2083.3277%2079.2916%2081.4612%2082.3098%2078.4456C84.8204%2075.9325%2086.5328%2072.6239%2087.0379%2068.9313H82.4917C81.9866%2072.6239%2080.2741%2075.9325%2077.7636%2078.4456C74.7454%2081.4612%2070.578%2083.3277%2065.9762%2083.3277H35.5586C35.5586%2078.7259%2037.4251%2074.5585%2040.4408%2071.5404C43.1231%2068.8581%2046.7146%2067.0876%2050.7128%2066.7264H50.7279L52.2282%2066.6582L92.496%2066.6582Z%22%20fill%3D%22%233A3A3A%22/%3E%3Cpath%20d%3D%22M92.4641%2044.6768C92.4641%2049.2786%2090.5976%2053.4459%2087.5819%2056.4641C85.2431%2058.8004%2082.2123%2060.4497%2078.8253%2061.071C77.9237%2061.2377%2076.9942%2061.3311%2076.0471%2061.3438C75.9637%2061.3463%2075.8779%2061.3463%2075.7945%2061.3463H70.4906C70.5739%2061.3463%2070.6598%2061.3463%2070.7431%2061.3438C71.6903%2061.3311%2072.6197%2061.2377%2073.5214%2061.071C76.9083%2060.4497%2079.9392%2058.8004%2082.2779%2056.4641C84.7885%2053.9511%2086.5009%2050.6424%2087.006%2046.9499H82.4598C81.9547%2050.6424%2080.2422%2053.9511%2077.7317%2056.4641C75.3929%2058.8004%2072.3621%2060.4497%2068.9751%2061.071C68.0735%2061.2377%2067.144%2061.3311%2066.1969%2061.3438C66.1135%2061.3463%2066.0277%2061.3463%2065.9443%2061.3463H49.5273C49.5273%2056.7445%2051.3938%2052.5771%2054.4095%2049.5589C57.4277%2046.5432%2061.5951%2044.6768%2066.1969%2044.6768H92.4641Z%22%20fill%3D%22%233A3A3A%22/%3E%3C/svg%3E">
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --panel:#FAF9F7;
+    --line:rgba(17,17,17,.12);
+    --line-soft:rgba(17,17,17,.07);
+    --ink:#161514;
+    --ink-dim:rgba(22,21,20,.62);
+    --ink-faint:rgba(22,21,20,.40);
+    --accent:#FF6633;
+    --accent-dim:rgba(255,102,51,.08);
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Switzer',-apple-system,sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:0 28px}
+
+  header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 0;border-bottom:1px solid var(--line-soft);
+    font-size:13px;color:var(--ink-faint);letter-spacing:.01em;
+  }
+  header .logo{display:flex;align-items:center;gap:9px;color:var(--ink)}
+  header .logo svg{width:38px;height:38px;display:block}
+  header .logo b{font-weight:600;font-size:17px;letter-spacing:-.02em}
+  header .logo b span{color:var(--accent)}
+
+  .hero{padding:80px 0 56px}
+  .hero .kicker{
+    font-size:13px;color:var(--accent);font-weight:500;
+    text-transform:uppercase;letter-spacing:.14em;margin-bottom:22px;
+  }
+  h1{
+    font-size:clamp(40px,7vw,58px);font-weight:600;letter-spacing:-.025em;
+    line-height:1.05;margin-bottom:22px;
+  }
+  .hero p{font-size:17.5px;color:var(--ink-dim);max-width:56ch}
+
+  /* ---------- work marquee ---------- */
+  .marquee{
+    border-top:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line-soft);
+    padding:44px 0;overflow:hidden;position:relative;
+    width:100vw;margin-left:calc(50% - 50vw);
+  }
+  .marquee .fade{
+    position:absolute;top:0;bottom:0;width:90px;z-index:2;pointer-events:none;
+  }
+  .marquee .fade.l{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+  .marquee .fade.r{right:0;background:linear-gradient(-90deg,var(--bg),transparent)}
+  .track{
+    display:flex;gap:14px;width:max-content;
+    animation:scroll 55s linear infinite;
+  }
+  .marquee:hover .track{animation-play-state:paused}
+  .track video{
+    height:300px;width:auto;display:block;
+    border-radius:16px;border:1px solid var(--line-soft);
+    background:var(--panel);
+  }
+  @media(max-width:600px){.track video{height:190px}}
+  @keyframes scroll{
+    from{transform:translateX(0)}
+    to{transform:translateX(-50%)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .track{animation:none}
+  }
+  .marquee-caption{
+    font-size:14px;color:var(--ink-dim);text-align:center;
+    padding:20px 0 0;letter-spacing:.02em;
+  }
+
+  section{padding:54px 0;border-top:1px solid var(--line-soft)}
+  section:first-of-type{border-top:none}
+  .sec-head{display:flex;gap:18px;align-items:center;margin-bottom:8px}
+  .sec-num{
+    width:34px;height:34px;border-radius:50%;flex-shrink:0;
+    border:1.5px solid var(--accent);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:600;
+  }
+  h2{font-size:28px;font-weight:600;letter-spacing:-.02em}
+  .sec-sub{color:var(--ink-dim);margin:8px 0 36px 52px;font-size:16px;max-width:58ch}
+  .fields{margin-left:52px;display:flex;flex-direction:column;gap:28px}
+  @media(max-width:600px){
+    .sec-sub,.fields{margin-left:0}
+  }
+
+  label.f-label{display:block;font-size:17.5px;font-weight:600;margin-bottom:13px;letter-spacing:-.01em}
+  label.f-label em{font-style:normal;color:var(--ink-faint);font-weight:400;font-size:14px}
+  input[type=text],input[type=email],input[type=tel]{
+    width:100%;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:14px 16px;color:var(--ink);
+    font-family:inherit;font-size:16px;outline:none;
+    transition:border-color .15s, background .15s, box-shadow .15s;
+  }
+  input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-dim)}
+  ::placeholder{color:var(--ink-faint)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:600px){.row2{grid-template-columns:1fr}}
+
+  .chips{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{
+    padding:13px 22px;border:1px solid var(--line);border-radius:100px;
+    background:#fff;color:var(--ink-dim);font-size:15.5px;font-family:inherit;
+    cursor:pointer;transition:all .13s;user-select:none;
+  }
+  .chip:hover{border-color:rgba(17,17,17,.3);color:var(--ink)}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+
+  /* style example cards */
+  .scards{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media(max-width:640px){.scards{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:420px){.scards{grid-template-columns:repeat(2,1fr)}}
+  .scard{
+    border:1.5px solid var(--line);border-radius:14px;background:#fff;
+    padding:0;overflow:hidden;cursor:pointer;font-family:inherit;
+    display:flex;flex-direction:column;transition:all .13s;text-align:center;
+  }
+  .scard:hover{border-color:rgba(17,17,17,.35);transform:translateY(-2px)}
+  .scard.on{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent),0 10px 26px -12px rgba(255,102,51,.4)}
+  .scard img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:var(--panel)}
+  .scard .q{
+    width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+    font-size:44px;font-weight:600;color:var(--ink-faint);background:var(--panel);
+  }
+  .scard span{
+    font-size:13px;font-weight:500;color:var(--ink-dim);
+    padding:9px 6px;border-top:1px solid var(--line-soft);
+  }
+  .scard.on span{color:var(--accent)}
+
+  .submit-row{margin:14px 0 0 52px}
+  @media(max-width:600px){.submit-row{margin-left:0}}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--accent);color:#fff;border:none;border-radius:12px;
+    font-family:inherit;font-size:16px;font-weight:600;letter-spacing:-.01em;
+    padding:17px 32px;cursor:pointer;transition:all .15s;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 14px 34px -12px rgba(255,102,51,.55)}
+  .btn:active{transform:translateY(0)}
+  .next-line{font-size:14px;color:var(--ink-dim);margin-top:18px;max-width:56ch}
+  .submit-hint{font-size:13px;color:var(--ink-faint);margin-top:12px}
+  .err{color:#D84315;font-size:13.5px;margin-top:14px;display:none}
+
+  .done{display:none;text-align:center;padding:110px 0 140px}
+  .done .mark{
+    width:64px;height:64px;border-radius:50%;background:var(--accent-dim);
+    border:1.5px solid var(--accent);margin:0 auto 28px;position:relative;
+  }
+  .done .mark::after{
+    content:'';position:absolute;left:23px;top:16px;width:14px;height:26px;
+    border:solid var(--accent);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);
+  }
+  .done h2{font-size:32px;margin-bottom:14px}
+  .done p{color:var(--ink-dim);max-width:46ch;margin:0 auto}
+  .spinner{
+    width:44px;height:44px;border-radius:50%;margin:0 auto 30px;
+    border:3px solid var(--line);border-top-color:var(--accent);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .pose-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+    max-width:640px;margin:44px auto 0;text-align:left;
+  }
+  @media(max-width:600px){.pose-grid{grid-template-columns:1fr;max-width:340px}}
+  .pose-grid figure{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+  .pose-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+  .pose-grid figcaption{font-size:12.5px;color:var(--ink-faint);text-align:center;padding:8px 0;border-top:1px solid var(--line-soft)}
+  .cta-box{
+    margin:56px auto 0;max-width:480px;padding:32px 28px;border-radius:16px;
+    background:var(--panel);border:1px solid var(--line);
+  }
+  .cta-box h3{font-size:22px;font-weight:600;margin-bottom:10px;letter-spacing:-.01em}
+  .cta-box p{font-size:14.5px;color:var(--ink-dim);margin-bottom:22px}
+  .cta-box .btn{padding:15px 28px;font-size:15px}
+  .prompt-box{
+    margin:40px auto 0;max-width:640px;text-align:left;
+    border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;
+  }
+  .prompt-head{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:12px 16px;border-bottom:1px solid var(--line-soft);
+    font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.09em;font-weight:500;
+  }
+  .prompt-head button{
+    font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink-dim);
+    border-radius:100px;padding:6px 14px;transition:all .13s;text-transform:none;letter-spacing:0;
+  }
+  .prompt-head button:hover{border-color:var(--accent);color:var(--accent)}
+  .prompt-box pre{
+    padding:18px;white-space:pre-wrap;word-wrap:break-word;
+    font-size:13.5px;line-height:1.65;color:var(--ink-dim);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+
+  footer{
+    border-top:1px solid var(--line-soft);padding:34px 0 60px;
+    font-size:13px;color:var(--ink-faint);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+  .reveal{opacity:0;transform:translateY(14px);animation:up .6s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes up{to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <svg viewBox="34 34 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M92.496 66.6582C92.496 71.26 90.6295 75.4274 87.6138 78.4456C84.5956 81.4612 80.4282 83.3277 75.8264 83.3277H70.5224C75.1242 83.3277 79.2916 81.4612 82.3098 78.4456C84.8204 75.9325 86.5328 72.6239 87.0379 68.9313H82.4917C81.9866 72.6239 80.2741 75.9325 77.7636 78.4456C74.7454 81.4612 70.578 83.3277 65.9762 83.3277H35.5586C35.5586 78.7259 37.4251 74.5585 40.4408 71.5404C43.1231 68.8581 46.7146 67.0876 50.7128 66.7264H50.7279L52.2282 66.6582L92.496 66.6582Z" fill="currentColor"/>
+        <path d="M92.4641 44.6768C92.4641 49.2786 90.5976 53.4459 87.5819 56.4641C85.2431 58.8004 82.2123 60.4497 78.8253 61.071C77.9237 61.2377 76.9942 61.3311 76.0471 61.3438C75.9637 61.3463 75.8779 61.3463 75.7945 61.3463H70.4906C70.5739 61.3463 70.6598 61.3463 70.7431 61.3438C71.6903 61.3311 72.6197 61.2377 73.5214 61.071C76.9083 60.4497 79.9392 58.8004 82.2779 56.4641C84.7885 53.9511 86.5009 50.6424 87.006 46.9499H82.4598C81.9547 50.6424 80.2422 53.9511 77.7317 56.4641C75.3929 58.8004 72.3621 60.4497 68.9751 61.071C68.0735 61.2377 67.144 61.3311 66.1969 61.3438C66.1135 61.3463 66.0277 61.3463 65.9443 61.3463H49.5273C49.5273 56.7445 51.3938 52.5771 54.4095 49.5589C57.4277 46.5432 61.5951 44.6768 66.1969 44.6768H92.4641Z" fill="currentColor"/>
+      </svg>
+      <b>Studiyo<span>.</span></b>
+    </div>
+    <div>Mascot brief · ~2 minutes</div>
+  </header>
+
+  <div id="formView">
+
+  <div class="hero">
+    <div class="kicker reveal">Character systems for apps and brands</div>
+    <h1 class="reveal" style="animation-delay:.08s">Build your mascot.</h1>
+    <p class="reveal" style="animation-delay:.16s">Answer a few quick questions about your product. We explore character directions, pick the strongest, and send you the winning character in three poses. The same process behind our work for our biggest clients.</p>
+  </div>
+  </div>
+
+  <!-- work marquee sits outside formView so it stays visible on the success screen -->
+  <div class="marquee reveal" style="animation-delay:.24s">
+    <div class="fade l"></div><div class="fade r"></div>
+    <div class="track" id="track">
+      <video src="works/work-01.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-02.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-03.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-04.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-05.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-06.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-07.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-08.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-09.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="works/work-10.mp4" autoplay muted loop playsinline preload="metadata"></video>
+    </div>
+    <div class="marquee-caption">Characters we designed and animated</div>
+  </div>
+
+  <div id="formView2">
+  <form id="intake" novalidate>
+
+  <!-- 1 · COMPANY -->
+  <section>
+    <div class="sec-head"><div class="sec-num">1</div><h2>Your company</h2></div>
+    <p class="sec-sub">The basics, so we know who we are building for.</p>
+    <div class="fields">
+      <div class="row2">
+        <div>
+          <label class="f-label">Company or product name</label>
+          <input type="text" name="company" required placeholder="EatCookJoy">
+        </div>
+        <div>
+          <label class="f-label">Website or App Store link</label>
+          <input type="text" name="website" placeholder="https://">
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label class="f-label">Your name</label>
+          <input type="text" name="contact" required placeholder="Jane Doe">
+        </div>
+        <div>
+          <label class="f-label">Email</label>
+          <input type="email" name="email" required placeholder="jane@company.com">
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label class="f-label">Phone or WhatsApp</label>
+          <input type="tel" name="phone" required placeholder="+1 555 123 4567">
+        </div>
+        <div>
+          <label class="f-label">What does your product do?</label>
+          <input type="text" name="product" placeholder="AI cooking assistant that plans menus.">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · YOUR MASCOT -->
+  <section>
+    <div class="sec-head"><div class="sec-num">2</div><h2>Your mascot</h2></div>
+    <p class="sec-sub">Just click. No wrong answers, and "surprise us" is a perfectly good one.</p>
+    <div class="fields">
+      <div>
+        <label class="f-label">What kind of shape feel?</label>
+        <div class="chips" data-single data-name="kind">
+          <button type="button" class="chip">Blob</button>
+          <button type="button" class="chip">Animal</button>
+          <button type="button" class="chip">Food or object</button>
+          <button type="button" class="chip">Robot</button>
+          <button type="button" class="chip">Surprise us</button>
+        </div>
+      </div>
+      <div>
+        <label class="f-label">What's its vibe? <em>· pick up to 2</em></label>
+        <div class="chips" data-multi data-max="2" data-name="vibe">
+          <button type="button" class="chip">Cute</button>
+          <button type="button" class="chip">Smart</button>
+          <button type="button" class="chip">Bold</button>
+          <button type="button" class="chip">Playful</button>
+          <button type="button" class="chip">Calm</button>
+        </div>
+      </div>
+      <div>
+        <label class="f-label">Visual style?</label>
+        <div class="scards" data-single data-name="style">
+          <button type="button" class="scard" data-v="2D flat &amp; minimal"><img src="styles/flat.jpg" alt="2D flat and minimal style example"><span>2D flat &amp; minimal</span></button>
+          <button type="button" class="scard" data-v="Soft 3D + 2D"><img src="styles/soft3d2d.jpg" alt="Soft 3D plus 2D style example"><span>Soft 3D + 2D</span></button>
+          <button type="button" class="scard" data-v="3D"><img src="styles/3d.jpg" alt="3D style example"><span>3D</span></button>
+          <button type="button" class="scard" data-v="Oil pastel"><img src="styles/oilpastel.jpg" alt="Oil pastel style example"><span>Oil pastel</span></button>
+          <button type="button" class="scard" data-v="Not sure yet"><div class="q">?</div><span>Not sure yet</span></button>
+        </div>
+      </div>
+      <div>
+        <label class="f-label">Where will it mostly live?</label>
+        <div class="chips" data-single data-name="usage">
+          <button type="button" class="chip">Inside our app</button>
+          <button type="button" class="chip">Website</button>
+          <button type="button" class="chip">Social content</button>
+          <button type="button" class="chip">Everywhere</button>
+        </div>
+      </div>
+      <div>
+        <label class="f-label">Anything else we should know? <em>· optional</em></label>
+        <input type="text" name="notes" placeholder="Deadlines, mascots you love, things to avoid...">
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <button type="submit" class="btn">Show me my mascot →</button>
+      <p class="next-line">We review your brief, explore character directions against your brand, and send the strongest one in three poses with a tailored proposal within two business days.</p>
+      <div class="err" id="err">Please fill in your company name, your name, a valid email, and a phone number.</div>
+      <div class="submit-hint">Studiyo · studiyo.co · Questions first? Email hello@studiyo.co</div>
+    </div>
+  </section>
+
+  </form>
+  </div>
+
+  <!-- loading -->
+  <div class="done" id="loadingView">
+    <div class="spinner"></div>
+    <h2 id="loadingHeadline">Exploring directions...</h2>
+    <p id="loadingSub">Generating 10 concepts from your brief.</p>
+  </div>
+
+  <!-- result -->
+  <div class="done" id="resultView">
+    <div class="mark"></div>
+    <h2>Your mascot.</h2>
+    <p>Ten directions explored, one winner picked. Front, side, and back.</p>
+    <div class="pose-grid" id="poseGrid"></div>
+    <div class="cta-box">
+      <h3>Serious about it?</h3>
+      <p>Book a call and get a full animated system proposal built around this character.</p>
+      <a class="btn" id="calBtn" href="https://cal.com/studiyo/mascot-call" target="_blank" rel="noopener">Book a call →</a>
+    </div>
+  </div>
+
+  <!-- error -->
+  <div class="done" id="errorView">
+    <h2>Something went wrong.</h2>
+    <p id="errorMsg">The generation pipeline hit an error. Please try again or email hello@studiyo.co.</p>
+  </div>
+
+  <footer>
+    <div>Studiyo · character systems</div>
+    <div>Cape Town · Worldwide</div>
+  </footer>
+</div>
+
+<script>
+// duplicate the marquee track once for a seamless loop
+const track=document.getElementById('track');
+track.innerHTML+=track.innerHTML;
+
+document.querySelectorAll('[data-multi]').forEach(g=>{
+  const max = parseInt(g.dataset.max||'99');
+  g.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+    if(c.classList.contains('on')){c.classList.remove('on');return}
+    if(g.querySelectorAll('.chip.on').length>=max)return;
+    c.classList.add('on');
+  }));
+});
+document.querySelectorAll('[data-single]').forEach(g=>{
+  g.querySelectorAll('.chip,.scard').forEach(c=>c.addEventListener('click',()=>{
+    g.querySelectorAll('.chip,.scard').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+  }));
+});
+
+function collect(){
+  const f=document.getElementById('intake');
+  const data={};
+  f.querySelectorAll('input[name]').forEach(el=>data[el.name]=el.value.trim());
+  document.querySelectorAll('[data-multi],[data-single]').forEach(g=>{
+    data[g.dataset.name]=[...g.querySelectorAll('.chip.on,.scard.on')].map(c=>c.dataset.v?c.dataset.v.replace('&amp;','&'):c.textContent.trim());
+  });
+  // style is data-single, form expects a plain string not an array
+  data.style=(data.style&&data.style[0])?data.style[0]:'Not sure yet';
+  return data;
+}
+
+function showView(id){
+  ['formView','formView2','loadingView','resultView','errorView'].forEach(v=>{
+    document.getElementById(v).style.display = (v===id)?'block':'none';
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function setLoading(headline,sub){
+  document.getElementById('loadingHeadline').textContent=headline;
+  document.getElementById('loadingSub').textContent=sub;
+}
+
+async function runPipeline(form){
+  // Stage 1: ten variations (blocking — this call runs until all 10 finish or fail)
+  setLoading('Exploring directions...','Generating 10 concepts from your brief. This can take up to a minute.');
+  const variationRes=await fetch('/api/generate-variations',{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)
+  }).then(r=>r.json());
+  if(variationRes.error) throw new Error(variationRes.error);
+  const imageUrls=variationRes.images||[];
+  if(imageUrls.length===0) throw new Error('All variations failed to generate');
+
+  // Stage 2: pick the winner
+  setLoading('Reviewing directions...','Scoring against your brief and picking the strongest concept.');
+  const winner=await fetch('/api/pick-winner',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({imageUrls,form})
+  }).then(r=>r.json());
+  if(winner.error) throw new Error(winner.error);
+
+  // Stage 3: front pose
+  setLoading('Building your character...','Rendering the front pose.');
+  const frontRes=await fetch('/api/generate-poses',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock})
+  }).then(r=>r.json());
+  if(frontRes.error) throw new Error(frontRes.error);
+
+  // Stage 4: side + back, chained off the approved front
+  setLoading('Building your character...','Rendering side and back poses from the approved front.');
+  const sideBackRes=await fetch('/api/generate-side-back',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImageUrl:frontRes.frontUrl})
+  }).then(r=>r.json());
+  if(sideBackRes.error) throw new Error(sideBackRes.error);
+
+  return {front:frontRes.frontUrl, side:sideBackRes.sideUrl, back:sideBackRes.backUrl};
+}
+
+document.getElementById('intake').addEventListener('submit', async (ev)=>{
+  ev.preventDefault();
+  const d=collect();
+  const emailOk=/^\S+@\S+\.\S+$/.test(d.email||'');
+  const phoneOk=(d.phone||'').replace(/\D/g,'').length>=7;
+  const valid=d.company&&d.contact&&emailOk&&phoneOk;
+  const err=document.getElementById('err');
+  if(!valid){err.style.display='block';return}
+  err.style.display='none';
+
+  showView('loadingView');
+  try{
+    const poses=await runPipeline(d);
+    const grid=document.getElementById('poseGrid');
+    grid.innerHTML=['front','side','back'].map(k=>
+      `<figure><img src="${poses[k]}" alt="${d.company||'Mascot'} ${k} pose"><figcaption>${k[0].toUpperCase()+k.slice(1)}</figcaption></figure>`
+    ).join('');
+    showView('resultView');
+  }catch(e){
+    document.getElementById('errorMsg').textContent=e.message||'The generation pipeline hit an error. Please try again or email hello@studiyo.co.';
+    showView('errorView');
+  }
+});
+</script>
+</body>
+</html>
