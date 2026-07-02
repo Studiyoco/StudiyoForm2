@@ -45,12 +45,18 @@ module.exports = async function handler(req, res) {
       .map((r) => r.value?.jobs?.[0]?.results?.raw?.url)
       .filter(Boolean);
 
-    const failed = results.filter((r) => r.status === 'rejected').length;
+    const failed = results.filter((r) => r.status === 'rejected');
     if (images.length === 0) {
-      return res.status(502).json({ error: 'All 10 variations failed', failed });
+      const sample = failed[0]?.reason;
+      const sampleMessage = sample?.message || sample?.toString?.() || String(sample);
+      return res.status(502).json({
+        error: 'All 10 variations failed',
+        failedCount: failed.length,
+        sampleError: sampleMessage
+      });
     }
 
-    return res.status(200).json({ images, failed });
+    return res.status(200).json({ images, failed: failed.length });
   } catch (err) {
     return res.status(500).json({ error: String(err) });
   }
