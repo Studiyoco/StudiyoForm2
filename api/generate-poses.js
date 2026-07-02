@@ -2,10 +2,10 @@
 // Body: { lockedCharacterBlock: string }
 // Returns: { frontUrl: string } — blocking call, waits for the generation.
 
-const { HiggsfieldClient } = require('@higgsfield/client');
+const { higgsfield, config } = require('@higgsfield/client/v2');
 const { buildPosePrompt } = require('./_prompt');
 
-const higgsfield = new HiggsfieldClient({
+config({
   apiKey: process.env.HIGGSFIELD_API_KEY,
   apiSecret: process.env.HIGGSFIELD_API_SECRET
 });
@@ -24,14 +24,14 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const result = await higgsfield.subscribe(MODEL, {
+    const jobSet = await higgsfield.subscribe(MODEL, {
       input: {
         prompt: buildPosePrompt(lockedCharacterBlock, 'front'),
         aspect_ratio: '3:4'
       }
     });
-    const frontUrl = result?.images?.[0]?.url;
-    if (!frontUrl) return res.status(502).json({ error: 'No image returned', raw: result });
+    const frontUrl = jobSet?.jobs?.[0]?.results?.raw?.url;
+    if (!frontUrl) return res.status(502).json({ error: 'No image returned', raw: jobSet });
     return res.status(200).json({ frontUrl });
   } catch (err) {
     return res.status(500).json({ error: String(err) });

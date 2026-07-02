@@ -2,18 +2,16 @@
 // Body: the form payload from index.html (company, kind, vibe, style, ...)
 // Returns: { images: string[] } — completed image URLs, blocking call.
 //
-// Uses the official @higgsfield/client SDK's subscribe(), which submits
-// and polls internally. That means this function runs for as long as the
-// slowest of the 10 parallel generations, likely 15-40s. Vercel's default
-// function timeout (10s on Hobby) will kill this before it finishes — see
-// vercel.json in this project, which raises maxDuration. If you're on the
-// Hobby plan, confirm in your Vercel dashboard whether the raised timeout
-// actually applies to your plan; some tiers cap it regardless of config.
+// Uses the confirmed v2 SDK pattern: `higgsfield` object + `config()`,
+// not the v1 `HiggsfieldClient` class (which has no `.subscribe()` method
+// — that mismatch is what caused the earlier crash).
+// subscribe() submits and polls internally, so this call blocks until
+// the generation finishes or fails.
 
-const { HiggsfieldClient } = require('@higgsfield/client');
+const { higgsfield, config } = require('@higgsfield/client/v2');
 const { buildAllVariationPrompts } = require('./_prompt');
 
-const higgsfield = new HiggsfieldClient({
+config({
   apiKey: process.env.HIGGSFIELD_API_KEY,
   apiSecret: process.env.HIGGSFIELD_API_SECRET
 });
@@ -44,7 +42,7 @@ module.exports = async function handler(req, res) {
 
     const images = results
       .filter((r) => r.status === 'fulfilled')
-      .map((r) => r.value?.images?.[0]?.url)
+      .map((r) => r.value?.jobs?.[0]?.results?.raw?.url)
       .filter(Boolean);
 
     const failed = results.filter((r) => r.status === 'rejected').length;

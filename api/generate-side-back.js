@@ -15,10 +15,10 @@
 // poses will come back as unrelated characters instead of the same one —
 // that failure mode is visually obvious, so it won't ship silently broken.
 
-const { HiggsfieldClient } = require('@higgsfield/client');
+const { higgsfield, config } = require('@higgsfield/client/v2');
 const { buildPosePrompt } = require('./_prompt');
 
-const higgsfield = new HiggsfieldClient({
+config({
   apiKey: process.env.HIGGSFIELD_API_KEY,
   apiSecret: process.env.HIGGSFIELD_API_SECRET
 });
@@ -45,11 +45,11 @@ module.exports = async function handler(req, res) {
   });
 
   try {
-    const [sideResult, backResult] = await Promise.all([submit('side'), submit('back')]);
-    const sideUrl = sideResult?.images?.[0]?.url;
-    const backUrl = backResult?.images?.[0]?.url;
+    const [sideJobSet, backJobSet] = await Promise.all([submit('side'), submit('back')]);
+    const sideUrl = sideJobSet?.jobs?.[0]?.results?.raw?.url;
+    const backUrl = backJobSet?.jobs?.[0]?.results?.raw?.url;
     if (!sideUrl || !backUrl) {
-      return res.status(502).json({ error: 'Missing image in response', sideResult, backResult });
+      return res.status(502).json({ error: 'Missing image in response', sideJobSet, backJobSet });
     }
     return res.status(200).json({ sideUrl, backUrl });
   } catch (err) {
