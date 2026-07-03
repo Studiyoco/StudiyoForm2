@@ -1,5 +1,5 @@
 // Shared prompt construction. Server-side only so the prompt logic
-// (and therefore your Higgsfield spend) can't be edited from devtools.
+// (and therefore your generation spend) can't be edited from devtools.
 
 const KIND_MAP = {
   'Blob': 'a soft rounded blob mascot with a simple ownable silhouette',
@@ -10,12 +10,20 @@ const KIND_MAP = {
 };
 
 const STYLE_MAP = {
-  '2D flat & minimal': 'flat vector illustration, clean bezier curves, solid color fills, minimal detail, no gradients, no outlines',
-  'Soft 3D + 2D': 'hybrid style, flat vector shapes with soft linear gradient shading for gentle dimensionality, no full 3D render, no cast shadows, no textures',
-  '3D': 'soft 3D render, matte clay-like material, soft studio lighting, rounded plush forms, no photorealism, no glossy plastic',
+  '2D flat & minimal': 'flat vector illustration, clean bezier curves, solid color fills, flat 2D highlight shapes for dimension (solid-color highlight shapes, not smooth gradient shading), minimal detail, no gradients',
+  'Soft 3D + 2D': 'flat 2D shapes with linear gradient shading for gentle dimensionality, no full 3D render, no cast shadows, no textures',
+  '3D': 'soft 3D render, matte clay-like material, diffused soft lighting with no sharp specular highlights, rounded plush forms, no textures, no photorealism, no glossy plastic',
   'Oil pastel': 'oil pastel illustration texture, visible waxy strokes, warm hand-painted feel, soft edges, painterly but still a clean readable character silhouette',
-  'Not sure yet': 'flat vector illustration, clean curves, solid fills, minimal detail'
+  'Not sure yet': 'flat vector illustration, clean curves, solid fills, flat 2D highlight shapes for dimension, minimal detail'
 };
+
+// Shared across every generation regardless of style chosen. "No outline"
+// is universal per direct instruction, not a per-style choice, so it lives
+// here once instead of being duplicated (and inevitably drifting) across
+// every template function that builds a prompt.
+const AVOID_BASE = 'extra limbs, duplicate character, text, background objects, gradient background, '
+  + 'cropped body, heavy shadows, realistic materials, black outlines, outlined linework, sharp '
+  + 'specular highlights, existing copyrighted mascots';
 
 function pick(map, val, fallbackKey) {
   return map[val] || map[fallbackKey];
@@ -34,12 +42,12 @@ function buildVariationPrompt(form, seedHint) {
 
   return `Mascot concept${ctx}. Design ${pick(KIND_MAP, kind, 'Surprise us')}. `
     + `Personality: ${vibe}. Variation angle: ${seedHint}. `
-    + `Style: ${pick(STYLE_MAP, style, 'Not sure yet')}. `
+    + `Style: ${pick(STYLE_MAP, style, 'Not sure yet')}. No outline, no black linework around `
+    + `shapes, colors meet directly. `
     + `Full body front view, standing centered, facing the viewer, default friendly expression. `
     + `Flat solid pure white background, always, regardless of style. Soft even lighting, `
     + `character fills 70% of frame height. Single character only, no text, no logo, no watermark. `
-    + `Aspect ratio 3:4.\n\nAvoid: extra limbs, duplicate character, text, background objects, `
-    + `gradient background, cropped body, existing copyrighted mascots.`;
+    + `Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}.`;
 }
 
 // Ten distinct angles so the batch isn't ten near-duplicates of one prompt.
@@ -61,41 +69,26 @@ function buildPosePrompt(lockedBlock, pose) {
     + `design detail identical: colors, proportions, features, style.`;
 
   if (pose === 'front') {
-    return `${lockedBlock}\n\nFull body front view, standing centered, facing the viewer directly, `
+    return `${lockedBlock}\n\nNo outline, no black linework around shapes, colors meet directly. `
+      + `Full body front view, standing centered, facing the viewer directly, `
       + `default expression, arms/appendages relaxed at rest. Plain solid white background, soft `
       + `even lighting, character fills 70% of frame height. No text, no logo, no watermark, single `
-      + `character only. Aspect ratio 3:4.\n\nAvoid: extra limbs, duplicate character, text, `
-      + `background objects, gradient background, cropped body.`;
+      + `character only. Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}.`;
   }
   if (pose === 'side') {
-    return `${base}\n\nSame character, full body, strict profile view facing left, default `
+    return `${base}\n\nNo outline, no black linework around shapes, colors meet directly. `
+      + `Same character, full body, strict profile view facing left, default `
       + `expression, same rest pose. Plain solid white background, identical lighting and framing `
       + `to the reference. No text, no watermark, single character only. Aspect ratio 3:4.\n\n`
-      + `Avoid: redesigned features, changed colors, 3/4 angle instead of profile, text.`;
+      + `Avoid: ${AVOID_BASE}, redesigned features, changed colors, 3/4 angle instead of profile.`;
   }
   // back
-  return `${base}\n\nSame character, full body, seen directly from behind, same rest pose. Show `
+  return `${base}\n\nNo outline, no black linework around shapes, colors meet directly. `
+    + `Same character, full body, seen directly from behind, same rest pose. Show `
     + `how the back of the head and body resolve; invent nothing that contradicts the front view. `
     + `Plain solid white background, identical lighting and framing. No text, no watermark, single `
-    + `character only. Aspect ratio 3:4.\n\nAvoid: face visible, redesigned silhouette, changed `
-    + `colors, text.`;
+    + `character only. Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}, face visible, redesigned `
+    + `silhouette, changed colors.`;
 }
 
-module.exports = { buildAllVariationPrompts, buildPosePrompt, KIND_MAP, STYLE_MAP, safeParseResponse };
-
-// Reads a fetch Response as text first, then attempts JSON.parse. Gateway-
-// level errors (502/504/etc) are very often HTML or plain text, not JSON —
-// calling .json() directly on those throws and masks the real error behind
-// a generic parse failure. This always returns something inspectable.
-async function safeParseResponse(response) {
-  const text = await response.text();
-  let parsed = null;
-  try { parsed = JSON.parse(text); } catch (e) { /* not JSON, that's fine */ }
-  return {
-    ok: response.ok,
-    status: response.status,
-    json: parsed,
-    text: parsed ? null : text.slice(0, 500) // cap raw text, gateway error pages can be huge
-  };
-}
-// deploy-verification bump 2026-07-03T12:01:27Z
+module.exports = { buildAllVariationPrompts, buildPosePrompt, KIND_MAP, STYLE_MAP };
