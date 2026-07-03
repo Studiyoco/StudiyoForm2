@@ -88,3 +88,4 @@ function buildPosePrompt(lockedBlock, pose) {
 }
 
 module.exports = { buildAllVariationPrompts, buildPosePrompt, KIND_MAP, STYLE_MAP };
+// deploy-verification bump 2026-07-03T12:01:27Z
