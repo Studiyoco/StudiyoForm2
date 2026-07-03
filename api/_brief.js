@@ -75,12 +75,20 @@ async function analyzeAndBuildPrompts(form) {
     },
     body: JSON.stringify({
       model: ANTHROPIC_MODEL,
-      max_tokens: 1200,
+      max_tokens: 4096,
       messages: [{ role: 'user', content: instruction }]
     })
   });
 
   const data = await resp.json();
+
+  if (!resp.ok || data.error) {
+    const err = new Error(`Anthropic API error: ${data.error?.message || resp.statusText}`);
+    err.status = 502;
+    err.body = { httpStatus: resp.status, anthropicError: data.error || null };
+    throw err;
+  }
+
   const text = (data.content || []).map((c) => c.text || '').join('').trim();
   const clean = text.replace(/```json|```/g, '').trim();
 
@@ -90,7 +98,17 @@ async function analyzeAndBuildPrompts(form) {
   } catch (e) {
     const err = new Error(`Brief analysis returned invalid JSON: ${e.message}`);
     err.status = 502;
-    err.body = { rawTextPreview: clean.slice(0, 800), stopReason: data.stop_reason };
+    // Full raw response this time, not a derived preview -- the last two
+    // fixes were both guesses about *why* text was missing/truncated, and
+    // both turned out wrong. Showing the actual API response structure
+    // directly removes the guessing entirely.
+    err.body = {
+      httpStatus: resp.status,
+      anthropicError: data.error || null,
+      stopReason: data.stop_reason,
+      contentBlockTypes: (data.content || []).map((c) => c.type),
+      rawResponse: JSON.stringify(data).slice(0, 1500)
+    };
     throw err;
   }
 
