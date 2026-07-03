@@ -109,10 +109,16 @@ async function analyzeAndBuildPrompts(form) {
 
   const text = (data.content || []).map((c) => c.text || '').join('').trim();
   const clean = text.replace(/```json|```/g, '').trim();
+  // Extract just the {...} object rather than assuming the whole string
+  // is clean JSON -- the model can add trailing content after a complete
+  // JSON object despite being told to output JSON only, which is exactly
+  // what happened here (parsed fine to position 898, then hit more text).
+  const jsonMatch = clean.match(/\{[\s\S]*\}/);
+  const jsonStr = jsonMatch ? jsonMatch[0] : clean;
 
   let parsed;
   try {
-    parsed = JSON.parse(clean);
+    parsed = JSON.parse(jsonStr);
   } catch (e) {
     const err = new Error(`Brief analysis returned invalid JSON: ${e.message}`);
     err.status = 502;
