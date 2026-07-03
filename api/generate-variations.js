@@ -50,6 +50,6 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({ images, briefAnalysis, failed: failed.length });
   } catch (err) {
-    return res.status(500).json({ error: String(err) });
+    return res.status(err.status || 500).json({ error: err.message || String(err), body: err.body });
   }
 };

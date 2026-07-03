@@ -67,7 +67,7 @@ async function analyzeAndBuildPrompts(form) {
     },
     body: JSON.stringify({
       model: ANTHROPIC_MODEL,
-      max_tokens: 1200,
+      max_tokens: 3000,
       messages: [{ role: 'user', content: instruction }]
     })
   });
@@ -75,7 +75,19 @@ async function analyzeAndBuildPrompts(form) {
   const data = await resp.json();
   const text = (data.content || []).map((c) => c.text || '').join('').trim();
   const clean = text.replace(/```json|```/g, '').trim();
-  const parsed = JSON.parse(clean);
+
+  let parsed;
+  try {
+    parsed = JSON.parse(clean);
+  } catch (e) {
+    // Likely truncated response (hit max_tokens before the JSON closed) or
+    // Claude didn't follow the JSON-only instruction. Either way, surface
+    // what actually came back instead of a bare parse-error crash.
+    const err = new Error(`Brief analysis returned invalid JSON: ${e.message}`);
+    err.status = 502;
+    err.body = { rawTextPreview: clean.slice(0, 800), stopReason: data.stop_reason };
+    throw err;
+  }
 
   if (!Array.isArray(parsed.prompts) || parsed.prompts.length === 0) {
     throw new Error('Brief analysis returned no prompts');
