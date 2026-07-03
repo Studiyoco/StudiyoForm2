@@ -1,5 +1,5 @@
 // POST /api/poll-task
-// Body: { tasks: [{ id: string, model: 'nano-banana-pro-flash' }] }
+// Body: { tasks: [{ id: string, model: 'nano-banana-pro' }] }
 // Returns: { done: boolean, results: { id, status, url, error? }[] }
 
 const { safeParseResponse } = require('./_prompt');
@@ -7,7 +7,7 @@ const { safeParseResponse } = require('./_prompt');
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
 
 const ENDPOINTS = {
-  'nano-banana-pro-flash': 'https://api.freepik.com/v1/ai/text-to-image/nano-banana-pro-flash'
+  'nano-banana-pro': 'https://api.freepik.com/v1/ai/text-to-image/nano-banana-pro'
 };
 
 module.exports = async function handler(req, res) {

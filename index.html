@@ -382,7 +382,7 @@
     <div class="cta-box">
       <h3>Serious about it?</h3>
       <p>Book a call and get a full animated system proposal built around this character.</p>
-      <a class="btn" id="calBtn" href="https://cal.com/studiyo/mascot-call" target="_blank" rel="noopener">Book a call →</a>
+      <a class="btn" id="calBtn" href="https://chat.studiyo.co" target="_blank" rel="noopener">Book a call →</a>
     </div>
   </div>
 
@@ -471,7 +471,7 @@ async function runPipeline(form){
   }).then(r=>r.json());
   if(variationRes.error) throw new Error(errText(variationRes.sampleError||variationRes.error));
 
-  const variationTasks=variationRes.taskIds.map(id=>({id,model:'nano-banana-pro-flash'}));
+  const variationTasks=variationRes.taskIds.map(id=>({id,model:'nano-banana-pro'}));
   const variationResults=await pollUntilDone(variationTasks,(res)=>{
     const done=res.filter(r=>r.status==='COMPLETED').length;
     setLoading('Exploring directions...',`${done} of ${variationTasks.length} concepts ready.`);
@@ -494,7 +494,7 @@ async function runPipeline(form){
     body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock})
   }).then(r=>r.json());
   if(frontSubmit.error) throw new Error(errText(frontSubmit.error));
-  const [frontResult]=await pollUntilDone([{id:frontSubmit.frontTaskId,model:'nano-banana-pro-flash'}]);
+  const [frontResult]=await pollUntilDone([{id:frontSubmit.frontTaskId,model:'nano-banana-pro'}]);
   if(!frontResult.url) throw new Error('Front pose failed to generate');
 
   // Stage 4: side, chained off the approved front (back dropped for cost)
@@ -505,7 +505,7 @@ async function runPipeline(form){
   }).then(r=>r.json());
   if(sideSubmit.error) throw new Error(errText(sideSubmit.error));
   const [sideResult]=await pollUntilDone([
-    {id:sideSubmit.sideTaskId,model:'nano-banana-pro-flash'}
+    {id:sideSubmit.sideTaskId,model:'nano-banana-pro'}
   ]);
 
   return {front:frontResult.url, side:sideResult.url};

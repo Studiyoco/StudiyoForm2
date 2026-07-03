@@ -11,7 +11,7 @@
 const { buildAllVariationPrompts, safeParseResponse } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
-const NANO_BANANA_ENDPOINT = 'https://api.freepik.com/v1/ai/text-to-image/nano-banana-pro-flash';
+const NANO_BANANA_ENDPOINT = 'https://api.freepik.com/v1/ai/text-to-image/nano-banana-pro';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({ taskIds, model: 'nano-banana-pro-flash', failed: failed.length });
+    return res.status(200).json({ taskIds, model: 'nano-banana-pro', failed: failed.length });
   } catch (err) {
     return res.status(500).json({ error: String(err) });
   }

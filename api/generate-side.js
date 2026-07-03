@@ -1,6 +1,6 @@
 // POST /api/generate-side
 // Body: { lockedCharacterBlock: string, frontImageUrl: string }
-// Returns: { sideTaskId } — poll via /api/poll-task with model 'nano-banana-pro-flash'.
+// Returns: { sideTaskId } — poll via /api/poll-task with model 'nano-banana-pro'.
 //
 // Back pose dropped per cost-cutting decision (front + side only). To
 // restore it: duplicate the submit() call with pose='back', add backTaskId
@@ -11,7 +11,7 @@
 const { buildPosePrompt, safeParseResponse } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
-const NANO_BANANA_ENDPOINT = 'https://api.freepik.com/v1/ai/text-to-image/nano-banana-pro-flash';
+const NANO_BANANA_ENDPOINT = 'https://api.freepik.com/v1/ai/text-to-image/nano-banana-pro';
 
 async function detectMimeType(url) {
   try {
