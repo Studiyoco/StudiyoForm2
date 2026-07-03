@@ -442,6 +442,12 @@ function setLoading(headline,sub){
   document.getElementById('loadingSub').textContent=sub;
 }
 
+function errText(x){
+  if(typeof x==='string') return x;
+  if(x==null) return 'Unknown error';
+  try{ return JSON.stringify(x); }catch(e){ return String(x); }
+}
+
 async function pollUntilDone(tasks,onTick){
   let results;
   for(let i=0;i<40;i++){
@@ -463,7 +469,7 @@ async function runPipeline(form){
   const variationRes=await fetch('/api/generate-variations',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)
   }).then(r=>r.json());
-  if(variationRes.error) throw new Error(variationRes.sampleError||variationRes.error);
+  if(variationRes.error) throw new Error(errText(variationRes.sampleError||variationRes.error));
 
   const variationTasks=variationRes.taskIds.map(id=>({id,model:'mystic'}));
   const variationResults=await pollUntilDone(variationTasks,(res)=>{
@@ -479,7 +485,7 @@ async function runPipeline(form){
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({imageUrls,form})
   }).then(r=>r.json());
-  if(winner.error) throw new Error(winner.error);
+  if(winner.error) throw new Error(errText(winner.error));
 
   // Stage 3: front pose via Nano Banana Pro Flash
   setLoading('Building your character...','Rendering the front pose.');
@@ -487,7 +493,7 @@ async function runPipeline(form){
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock})
   }).then(r=>r.json());
-  if(frontSubmit.error) throw new Error(frontSubmit.error);
+  if(frontSubmit.error) throw new Error(errText(frontSubmit.error));
   const [frontResult]=await pollUntilDone([{id:frontSubmit.frontTaskId,model:'nano-banana-pro-flash'}]);
   if(!frontResult.url) throw new Error('Front pose failed to generate');
 
@@ -497,7 +503,7 @@ async function runPipeline(form){
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImageUrl:frontResult.url})
   }).then(r=>r.json());
-  if(sideBackSubmit.error) throw new Error(sideBackSubmit.error);
+  if(sideBackSubmit.error) throw new Error(errText(sideBackSubmit.error));
   const [sideResult,backResult]=await pollUntilDone([
     {id:sideBackSubmit.sideTaskId,model:'nano-banana-pro-flash'},
     {id:sideBackSubmit.backTaskId,model:'nano-banana-pro-flash'}
