@@ -465,7 +465,7 @@ async function runPipeline(form){
   }).then(r=>r.json());
   if(variationRes.error) throw new Error(variationRes.sampleError||variationRes.error);
 
-  const variationTasks=variationRes.taskIds.map(id=>({id,model:'seedream'}));
+  const variationTasks=variationRes.taskIds.map(id=>({id,model:'mystic'}));
   const variationResults=await pollUntilDone(variationTasks,(res)=>{
     const done=res.filter(r=>r.status==='COMPLETED').length;
     setLoading('Exploring directions...',`${done} of ${variationTasks.length} concepts ready.`);

@@ -9,6 +9,7 @@
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
 
 const ENDPOINTS = {
+  'mystic': 'https://api.magnific.com/v1/ai/mystic',
   'seedream': 'https://api.magnific.com/v1/ai/text-to-image/seedream',
   'nano-banana-pro-flash': 'https://api.magnific.com/v1/ai/text-to-image/nano-banana-pro-flash'
 };

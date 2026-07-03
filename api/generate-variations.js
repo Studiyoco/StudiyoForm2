@@ -1,17 +1,20 @@
 // POST /api/generate-variations
 // Body: the form payload from index.html (company, kind, vibe, style, ...)
-// Returns: { taskIds: string[] } — 10 Magnific/Seedream task ids, not done yet.
+// Returns: { taskIds: string[] } — 10 Magnific/Mystic task ids, not done yet.
 // Poll them via /api/poll-task.
 //
-// Uses Magnific's Seedream (Legacy) endpoint — fully confirmed and
-// documented at docs.magnific.com/api-reference/text-to-image/seedream.
-// Newer Seedream 4/4.5 endpoints exist in Magnific's catalog but their
-// exact path wasn't confirmed; swap MYSTIC_ENDPOINT below once known.
+// Reverted from Seedream (Legacy) back to Mystic after the Legacy endpoint
+// returned real 404s from Magnific's own server (confirmed, not guessed —
+// see Vercel function logs). Magnific's own quickstart/getting-started
+// example uses Mystic as its canonical curl sample, strong evidence it's
+// the actively maintained primary endpoint. A current, non-legacy Seedream
+// path can be swapped back in once confirmed; this isn't abandoning that,
+// just not blocking on it.
 
 const { buildAllVariationPrompts } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
-const SEEDREAM_ENDPOINT = 'https://api.magnific.com/v1/ai/text-to-image/seedream';
+const MYSTIC_ENDPOINT = 'https://api.magnific.com/v1/ai/mystic';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -29,7 +32,7 @@ module.exports = async function handler(req, res) {
   try {
     const results = await Promise.allSettled(
       prompts.map((prompt) =>
-        fetch(SEEDREAM_ENDPOINT, {
+        fetch(MYSTIC_ENDPOINT, {
           method: 'POST',
           headers: {
             'x-magnific-api-key': MAGNIFIC_API_KEY,
@@ -37,8 +40,9 @@ module.exports = async function handler(req, res) {
           },
           body: JSON.stringify({
             prompt,
-            aspect_ratio: 'traditional_3_4',
-            guidance_scale: 7 // stronger prompt adherence than the 2.5 default, mascot briefs are specific
+            model: 'flexible', // Mystic's own docs: best for illustration, not the 'realism' default
+            resolution: '1k',
+            aspect_ratio: 'traditional_3_4'
           })
         }).then((r) => r.json())
       )
@@ -59,7 +63,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({ taskIds, model: 'seedream', failed: failed.length });
+    return res.status(200).json({ taskIds, model: 'mystic', failed: failed.length });
   } catch (err) {
     return res.status(500).json({ error: String(err) });
   }
