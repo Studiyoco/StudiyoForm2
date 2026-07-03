@@ -69,18 +69,16 @@ async function analyzeAndBuildPrompts(form) {
           + `client-side. Reason from the fields above only, and don't invent specifics you don't `
           + `have.)\n`)
     + `\n`
-    + `For each of these 4 creative directions, write the creative concept, concise, 3-4 `
-    + `sentences, in this exact structure: start with "Mascot concept for ${form.company || 'the brand'}, `
-    + `[one clause on what the product actually does]." then the character's form and silhouette, `
-    + `then its personality, then a specific named color palette (real colors, not "brand `
-    + `colors"). Do NOT write background, lighting, or technical instructions -- those are `
-    + `handled separately and appended after your text.\n\n`
-    + `1. ${TECHNICAL_ANGLES[0]}\n2. ${TECHNICAL_ANGLES[1]}\n3. ${TECHNICAL_ANGLES[2]}\n`
-    + `4. ${TECHNICAL_ANGLES[3]}\n\n`
+    + `For each of these 2 creative directions, write the creative concept in exactly 2 sentences: `
+    + `sentence 1 is the character form and silhouette, sentence 2 is the color palette with `
+    + `specific named colors. No personality prose, no adjective lists, no backstory, no padding.\n\n`
+    + `The briefAnalysis field must be exactly 1 sentence: what specific visual territory this `
+    + `mascot is designed to own that competitors don't already occupy. Cite a real competitor `
+    + `approach if you can, then state the opening. No emotional job framing, no mission statements.\n\n`
+    + `1. ${TECHNICAL_ANGLES[0]}\n2. ${TECHNICAL_ANGLES[1]}\n\n`
     + `Respond ONLY with JSON, no markdown fences, no preamble:\n`
-    + `{"briefAnalysis": "<2-3 sentences on the emotional job, the strategic opening, and why you `
-    + `chose the palette you chose>", `
-    + `"concepts": ["<concept 1>", "<concept 2>", "<concept 3>", "<concept 4>"]}`;
+    + `{"briefAnalysis": "<1 sentence: what specific visual territory this mascot owns that competitors in this space don't>", `
+    + `"concepts": ["<2 sentences: character form and silhouette, then specific named colors>", "<2 sentences: character form and silhouette, then specific named colors>"]}`;
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
