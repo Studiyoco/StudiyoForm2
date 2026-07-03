@@ -1,19 +1,16 @@
 // POST /api/pick-winner
-// Body: { imageUrls: string[10], form: {...} }
+// Body: { images: [{ data, mimeType }], form: {...} }
 // Returns: { winnerIndex, reasoning, lockedCharacterBlock }
 //
-// This one is fully specified against the real, documented Anthropic API
-// (api.anthropic.com/v1/messages, vision content blocks). No guesswork here.
+// Fully specified against the real, documented Anthropic API
+// (api.anthropic.com/v1/messages, vision content blocks). No guesswork.
+//
+// Images now arrive already base64-encoded straight from Gemini, so the
+// fetch-and-encode round trip this used to need against Magnific's URLs
+// is gone entirely -- one less network call, one less place to break.
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
-
-async function toBase64Image(url) {
-  const r = await fetch(url);
-  const buf = Buffer.from(await r.arrayBuffer());
-  const contentType = r.headers.get('content-type') || 'image/png';
-  return { data: buf.toString('base64'), media_type: contentType };
-}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -21,14 +18,12 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set on the server' });
   }
 
-  const { imageUrls, form } = req.body || {};
-  if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
-    return res.status(400).json({ error: 'imageUrls array required' });
+  const { images, form } = req.body || {};
+  if (!Array.isArray(images) || images.length === 0) {
+    return res.status(400).json({ error: 'images array required' });
   }
 
   try {
-    const images = await Promise.all(imageUrls.map(toBase64Image));
-
     const content = [
       {
         type: 'text',
@@ -47,7 +42,7 @@ module.exports = async function handler(req, res) {
       },
       ...images.map((img) => ({
         type: 'image',
-        source: { type: 'base64', media_type: img.media_type, data: img.data }
+        source: { type: 'base64', media_type: img.mimeType, data: img.data }
       }))
     ];
 

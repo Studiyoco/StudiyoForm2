@@ -448,67 +448,45 @@ function errText(x){
   try{ return JSON.stringify(x); }catch(e){ return String(x); }
 }
 
-async function pollUntilDone(tasks,onTick){
-  let results;
-  for(let i=0;i<40;i++){
-    const r=await fetch('/api/poll-task',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({tasks})
-    }).then(r=>r.json());
-    results=r.results;
-    if(onTick) onTick(results);
-    if(r.done) return results;
-    await new Promise(res=>setTimeout(res,4000));
-  }
-  throw new Error('Generation timed out');
+function toDataUri(img){
+  return `data:${img.mimeType};base64,${img.data}`;
 }
 
 async function runPipeline(form){
-  // Stage 1: variations via Nano Banana Pro
+  // Stage 1: variations via Nano Banana Pro (synchronous, no polling)
   setLoading('Exploring directions...','Generating concepts from your brief.');
   const variationRes=await fetch('/api/generate-variations',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)
   }).then(r=>r.json());
   if(variationRes.error) throw new Error(errText(variationRes.sampleError||variationRes.error));
-
-  const variationTasks=variationRes.taskIds.map(id=>({id,model:'nano-banana-pro'}));
-  const variationResults=await pollUntilDone(variationTasks,(res)=>{
-    const done=res.filter(r=>r.status==='COMPLETED').length;
-    setLoading('Exploring directions...',`${done} of ${variationTasks.length} concepts ready.`);
-  });
-  const imageUrls=variationResults.filter(r=>r.url).map(r=>r.url);
-  if(imageUrls.length===0) throw new Error('All variations failed to generate');
+  const images=variationRes.images||[];
+  if(images.length===0) throw new Error('All variations failed to generate');
 
   // Stage 2: pick the winner
   setLoading('Reviewing directions...','Scoring against your brief and picking the strongest concept.');
   const winner=await fetch('/api/pick-winner',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({imageUrls,form})
+    body:JSON.stringify({images,form})
   }).then(r=>r.json());
   if(winner.error) throw new Error(errText(winner.error));
 
   // Stage 3: front pose via Nano Banana Pro
   setLoading('Building your character...','Rendering the front pose.');
-  const frontSubmit=await fetch('/api/generate-poses',{
+  const frontRes=await fetch('/api/generate-poses',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock})
   }).then(r=>r.json());
-  if(frontSubmit.error) throw new Error(errText(frontSubmit.error));
-  const [frontResult]=await pollUntilDone([{id:frontSubmit.frontTaskId,model:'nano-banana-pro'}]);
-  if(!frontResult.url) throw new Error('Front pose failed to generate');
+  if(frontRes.error) throw new Error(errText(frontRes.error));
 
   // Stage 4: side, chained off the approved front (back dropped for cost)
   setLoading('Building your character...','Rendering the side pose from the approved front.');
-  const sideSubmit=await fetch('/api/generate-side',{
+  const sideRes=await fetch('/api/generate-side',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImageUrl:frontResult.url})
+    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImage:frontRes.front})
   }).then(r=>r.json());
-  if(sideSubmit.error) throw new Error(errText(sideSubmit.error));
-  const [sideResult]=await pollUntilDone([
-    {id:sideSubmit.sideTaskId,model:'nano-banana-pro'}
-  ]);
+  if(sideRes.error) throw new Error(errText(sideRes.error));
 
-  return {front:frontResult.url, side:sideResult.url};
+  return {front:toDataUri(frontRes.front), side:toDataUri(sideRes.side)};
 }
 
 document.getElementById('intake').addEventListener('submit', async (ev)=>{
