@@ -53,27 +53,32 @@ function buildPosePrompt(lockedBlock, pose) {
   const base = `${lockedBlock}\n\nUsing the attached character reference image, keep every `
     + `design detail identical: colors, proportions, features, style. That reference's colors `
     + `ARE the correct colors, carry them forward exactly.`;
-  const shading = `No outline, no black linework around shapes, colors meet directly. Real `
-    + `dimensional shading, highlights and shadow shapes must be visible, never a flat `
-    + `solid-color silhouette.`;
+  const shading = `CRITICAL CONSTRAINT, the single most important rule here: absolutely zero `
+    + `outline, border stroke, or cartoon linework of any kind around any shape. Every edge is `
+    + `defined ONLY by a change in fill color or a shading transition, never by a drawn line. Do `
+    + `not render this in a cel-shaded comic-book style with black borders. Real dimensional `
+    + `shading, highlights and shadow shapes must be visible, never a flat solid-color silhouette.`;
   const styleColorGuard = `If a second reference image is attached showing a plain colored `
     + `sphere, that image is for shading and rendering technique ONLY. Its own color is `
     + `irrelevant and must be completely ignored. Never use that sphere's color anywhere in the `
     + `output.`;
+  const outlineReminder = `REMINDER: no outline, no border stroke, no black linework, `
+    + `absolutely none, this is the top priority constraint.`;
 
   if (pose === 'front') {
     return `${lockedBlock}\n\n${shading} ${styleColorGuard} `
       + `Full body front view, standing centered, facing the viewer directly, `
       + `default expression, arms/appendages relaxed at rest. Plain solid white background, soft `
       + `even lighting, character fills 70% of frame height. No text, no logo, no watermark, single `
-      + `character only. Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}.`;
+      + `character only. Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}. ${outlineReminder}`;
   }
   if (pose === 'side') {
     return `${base}\n\n${shading} ${styleColorGuard} `
       + `Same character, full body, strict profile view facing left, default `
       + `expression, same rest pose. Plain solid white background, identical lighting and framing `
       + `to the reference. No text, no watermark, single character only. Aspect ratio 3:4.\n\n`
-      + `Avoid: ${AVOID_BASE}, redesigned features, changed colors, 3/4 angle instead of profile.`;
+      + `Avoid: ${AVOID_BASE}, redesigned features, changed colors, 3/4 angle instead of profile. `
+      + `${outlineReminder}`;
   }
   // back
   return `${base}\n\n${shading} ${styleColorGuard} `
@@ -81,7 +86,7 @@ function buildPosePrompt(lockedBlock, pose) {
     + `how the back of the head and body resolve; invent nothing that contradicts the front view. `
     + `Plain solid white background, identical lighting and framing. No text, no watermark, single `
     + `character only. Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}, face visible, redesigned `
-    + `silhouette, changed colors.`;
+    + `silhouette, changed colors. ${outlineReminder}`;
 }
 
 module.exports = { buildPosePrompt, STYLE_MAP, STYLE_IMAGE_MAP, AVOID_BASE };

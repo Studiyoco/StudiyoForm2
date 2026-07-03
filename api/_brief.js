@@ -30,15 +30,21 @@ const TECHNICAL_ANGLES = [
 ];
 
 function buildTechnicalSuffix(styleText) {
-  return `No outline, no black linework around shapes, colors meet directly. Real dimensional `
-    + `shading, highlights and shadow shapes must be visible, never a flat solid-color silhouette, `
-    + `but not heavy shadows or sharp specular highlights either. Style rendering: ${styleText}. `
-    + `If a reference image is attached showing a plain colored sphere, that image is for shading `
-    + `and rendering technique ONLY, its own color is irrelevant and must be completely ignored, `
-    + `use the colors specified above instead. Full body, standing centered, facing the viewer, `
-    + `default friendly expression. Flat solid pure white background, character fills 70% of frame `
-    + `height. Single character only, no text, no logo, no watermark. Aspect ratio 1:1.`
-    + `\n\nAvoid: ${AVOID_BASE}.`;
+  return `CRITICAL CONSTRAINT, the single most important rule in this brief: absolutely zero `
+    + `outline, border stroke, or cartoon linework of any kind around any shape, anywhere on the `
+    + `character. Every edge is defined ONLY by a change in fill color or a shading transition, `
+    + `never by a drawn line. Do not render this in a cel-shaded comic-book style with black `
+    + `borders. Colors and shaded regions meet directly with no stroke between them.\n\n`
+    + `Real dimensional shading, highlights and shadow shapes must be visible, never a flat `
+    + `solid-color silhouette, but not heavy shadows or sharp specular highlights either. Style `
+    + `rendering: ${styleText}. If a reference image is attached showing a plain colored sphere, `
+    + `that image is for shading and rendering technique ONLY, its own color is irrelevant and `
+    + `must be completely ignored, use the colors specified above instead. Full body, standing `
+    + `centered, facing the viewer, default friendly expression. Flat solid pure white background, `
+    + `character fills 70% of frame height. Single character only, no text, no logo, no watermark. `
+    + `Aspect ratio 1:1.`
+    + `\n\nAvoid: ${AVOID_BASE}. REMINDER: no outline, no border stroke, no black linework, `
+    + `absolutely none, this is the top priority constraint.`;
 }
 
 async function analyzeAndBuildPrompts(form) {
