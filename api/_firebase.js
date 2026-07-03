@@ -29,6 +29,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
+db.settings({ databaseId: 'studiyoform' });
 const bucket = admin.storage().bucket();
 
 // Write the initial submission record the moment the form is submitted,
