@@ -20,12 +20,10 @@ const { STYLE_MAP, AVOID_BASE } = require('./_prompt');
 const { fetchWebsiteContext } = require('./_webfetch');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const ANTHROPIC_MODEL = 'claude-sonnet-5';
+const ANTHROPIC_MODEL = 'claude-haiku-4-5';
 
 const TECHNICAL_ANGLES = [
   'a straightforward, on-brief read of the character',
-  'an unexpected lateral twist on the form',
-  'a bold, ownable single distinguishing feature',
   'the most surprising, screenshot-worthy version'
 ];
 

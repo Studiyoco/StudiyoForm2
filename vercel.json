@@ -2,7 +2,6 @@
   "functions": {
     "api/generate-variations.js": { "maxDuration": 110 },
     "api/pick-winner.js": { "maxDuration": 110 },
-    "api/generate-poses.js": { "maxDuration": 90 },
-    "api/generate-side.js": { "maxDuration": 90 }
+    "api/generate-poses.js": { "maxDuration": 90 }
   }
 }
