@@ -40,14 +40,33 @@ async function generateImage(prompt, referenceImage, aspectRatio) {
     }
   };
 
-  const res = await fetch(ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'x-goog-api-key': GOOGLE_API_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
+  // 35s per-request cap, under the 45s function limit, so a genuine hang
+  // fails with a clear, attributable error instead of taking the whole
+  // function down silently with zero diagnostic information.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 35000);
+
+  let res;
+  try {
+    res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'x-goog-api-key': GOOGLE_API_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      const err = new Error('Gemini request timed out after 35s');
+      err.status = 504;
+      throw err;
+    }
+    throw e;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const text = await res.text();
   let json = null;
