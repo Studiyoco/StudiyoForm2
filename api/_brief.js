@@ -69,16 +69,21 @@ async function analyzeAndBuildPrompts(form) {
           + `client-side. Reason from the fields above only, and don't invent specifics you don't `
           + `have.)\n`)
     + `\n`
-    + `For each of these 2 creative directions, write the creative concept in exactly 2 sentences: `
-    + `sentence 1 is the character form and silhouette, sentence 2 is the color palette with `
-    + `specific named colors. No personality prose, no adjective lists, no backstory, no padding.\n\n`
-    + `The briefAnalysis field must be exactly 1 sentence: what specific visual territory this `
-    + `mascot is designed to own that competitors don't already occupy. Cite a real competitor `
-    + `approach if you can, then state the opening. No emotional job framing, no mission statements.\n\n`
+    + `For each of these 2 creative directions, write the creative concept in 3-5 sentences. `
+    + `Cover: what the character actually is (species, body type, defining feature), its specific `
+    + `silhouette and proportions, its personality expressed through a physical trait or pose `
+    + `tendency rather than adjectives, and a specific named color palette with hex codes or `
+    + `precise color names. The two directions must be genuinely different from each other, not `
+    + `the same character with a color swap. Do NOT write: backstory, origin stories, generic `
+    + `adjective lists ("friendly, curious, energetic"), mission statements, or any sentence that `
+    + `could apply to any mascot for any product. Every sentence must be specific to this brief.\n\n`
+    + `The briefAnalysis field: 1-2 sentences max. State what specific visual territory this `
+    + `mascot is designed to own, and name the competitor cliche it is deliberately avoiding. `
+    + `No emotional job framing, no "this mascot will help users feel..." language.\n\n`
     + `1. ${TECHNICAL_ANGLES[0]}\n2. ${TECHNICAL_ANGLES[1]}\n\n`
     + `Respond ONLY with JSON, no markdown fences, no preamble:\n`
-    + `{"briefAnalysis": "<1 sentence: what specific visual territory this mascot owns that competitors in this space don't>", `
-    + `"concepts": ["<2 sentences: character form and silhouette, then specific named colors>", "<2 sentences: character form and silhouette, then specific named colors>"]}`;
+    + `{"briefAnalysis": "<1-2 sentences: visual territory owned + competitor cliche avoided>", `
+    + `"concepts": ["<3-5 sentences: character form, silhouette, personality-via-physical-trait, specific colors with hex or precise names>", "<3-5 sentences: genuinely different direction, same depth>"]}`;
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
