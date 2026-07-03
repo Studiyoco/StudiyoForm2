@@ -464,7 +464,7 @@ async function pollUntilDone(tasks,onTick){
 }
 
 async function runPipeline(form){
-  // Stage 1: ten variations via Seedream
+  // Stage 1: variations via Nano Banana Pro
   setLoading('Exploring directions...','Generating concepts from your brief.');
   const variationRes=await fetch('/api/generate-variations',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)
@@ -487,7 +487,7 @@ async function runPipeline(form){
   }).then(r=>r.json());
   if(winner.error) throw new Error(errText(winner.error));
 
-  // Stage 3: front pose via Nano Banana Pro Flash
+  // Stage 3: front pose via Nano Banana Pro
   setLoading('Building your character...','Rendering the front pose.');
   const frontSubmit=await fetch('/api/generate-poses',{
     method:'POST',headers:{'Content-Type':'application/json'},

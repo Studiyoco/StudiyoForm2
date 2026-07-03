@@ -1,12 +1,13 @@
 // POST /api/generate-variations
 // Body: the form payload from index.html (company, kind, vibe, style, ...)
-// Returns: { taskIds: string[] } — 4 Nano Banana Pro Flash task ids.
+// Returns: { taskIds: string[] } — 4 Nano Banana Pro task ids, not done yet.
 // Poll them via /api/poll-task.
 //
-// Switched from Mystic to Nano Banana Pro Flash for cost reasons: one
-// model across the whole pipeline instead of two, and this stage cut
-// from 10 generations to 4 (see VARIATION_ANGLES in _prompt.js). Square
-// 1:1 instead of portrait, cheapest reasonable resolution.
+// Nano Banana Pro is the sole model across this entire pipeline, by
+// explicit instruction, no other model to be introduced without a
+// direct decision to change it. 4 variations (not 10), square 1:1
+// aspect ratio, cheapest reasonable resolution -- see VARIATION_ANGLES
+// in _prompt.js for the prompt-angle spread across those 4.
 
 const { buildAllVariationPrompts, safeParseResponse } = require('./_prompt');
 
