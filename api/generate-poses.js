@@ -23,9 +23,9 @@ module.exports = async function handler(req, res) {
   try {
     const styleRef = await fetchStyleReference(req.headers.host, style);
     const front = await generateImage(
-      buildPosePrompt(lockedCharacterBlock, 'front') + '\n\nPortrait 3:4 aspect ratio.',
+      buildPosePrompt(lockedCharacterBlock, 'front') + '\n\nSquare 1:1 aspect ratio.',
       styleRef ? [styleRef] : [],
-      '3:4'
+      '1:1'
     );
 
     // Upload to Firebase Storage and store the permanent URL

@@ -70,13 +70,13 @@ function buildPosePrompt(lockedBlock, pose) {
       + `Full body front view, standing centered, facing the viewer directly, `
       + `default expression, arms/appendages relaxed at rest. Plain solid white background, soft `
       + `even lighting, character fills 70% of frame height. No text, no logo, no watermark, single `
-      + `character only. Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}. ${outlineReminder}`;
+      + `character only. Aspect ratio 1:1.\n\nAvoid: ${AVOID_BASE}. ${outlineReminder}`;
   }
   if (pose === 'side') {
     return `${base}\n\n${shading} ${styleColorGuard} `
       + `Same character, full body, strict profile view facing left, default `
       + `expression, same rest pose. Plain solid white background, identical lighting and framing `
-      + `to the reference. No text, no watermark, single character only. Aspect ratio 3:4.\n\n`
+      + `to the reference. No text, no watermark, single character only. Aspect ratio 1:1.\n\n`
       + `Avoid: ${AVOID_BASE}, redesigned features, changed colors, 3/4 angle instead of profile. `
       + `${outlineReminder}`;
   }
@@ -85,7 +85,7 @@ function buildPosePrompt(lockedBlock, pose) {
     + `Same character, full body, seen directly from behind, same rest pose. Show `
     + `how the back of the head and body resolve; invent nothing that contradicts the front view. `
     + `Plain solid white background, identical lighting and framing. No text, no watermark, single `
-    + `character only. Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}, face visible, redesigned `
+    + `character only. Aspect ratio 1:1.\n\nAvoid: ${AVOID_BASE}, face visible, redesigned `
     + `silhouette, changed colors. ${outlineReminder}`;
 }
 
