@@ -58,7 +58,9 @@ function buildVariationPrompt(form, seedHint) {
   return `Mascot concept${ctx}. Design ${pick(KIND_MAP, kind, 'Surprise us')}. `
     + `Personality: ${vibe}. Variation angle: ${seedHint}. `
     + `Style: ${pick(STYLE_MAP, style, 'Not sure yet')}. No outline, no black linework around `
-    + `shapes, colors meet directly. `
+    + `shapes, colors meet directly. The character must show real dimensional shading, highlights `
+    + `and shadow shapes appropriate to the chosen style, never a flat solid-color silhouette with `
+    + `no depth cues. `
     + `Full body front view, standing centered, facing the viewer, default friendly expression. `
     + `Flat solid pure white background, always, regardless of style. Soft even lighting, `
     + `character fills 70% of frame height. Single character only, no text, no logo, no watermark. `
@@ -84,21 +86,21 @@ function buildPosePrompt(lockedBlock, pose) {
     + `design detail identical: colors, proportions, features, style.`;
 
   if (pose === 'front') {
-    return `${lockedBlock}\n\nNo outline, no black linework around shapes, colors meet directly. `
+    return `${lockedBlock}\n\nNo outline, no black linework around shapes, colors meet directly. Real dimensional shading, highlights and shadow shapes must be visible, never a flat solid-color silhouette. `
       + `Full body front view, standing centered, facing the viewer directly, `
       + `default expression, arms/appendages relaxed at rest. Plain solid white background, soft `
       + `even lighting, character fills 70% of frame height. No text, no logo, no watermark, single `
       + `character only. Aspect ratio 3:4.\n\nAvoid: ${AVOID_BASE}.`;
   }
   if (pose === 'side') {
-    return `${base}\n\nNo outline, no black linework around shapes, colors meet directly. `
+    return `${base}\n\nNo outline, no black linework around shapes, colors meet directly. Real dimensional shading, highlights and shadow shapes must be visible, never a flat solid-color silhouette. `
       + `Same character, full body, strict profile view facing left, default `
       + `expression, same rest pose. Plain solid white background, identical lighting and framing `
       + `to the reference. No text, no watermark, single character only. Aspect ratio 3:4.\n\n`
       + `Avoid: ${AVOID_BASE}, redesigned features, changed colors, 3/4 angle instead of profile.`;
   }
   // back
-  return `${base}\n\nNo outline, no black linework around shapes, colors meet directly. `
+  return `${base}\n\nNo outline, no black linework around shapes, colors meet directly. Real dimensional shading, highlights and shadow shapes must be visible, never a flat solid-color silhouette. `
     + `Same character, full body, seen directly from behind, same rest pose. Show `
     + `how the back of the head and body resolve; invent nothing that contradicts the front view. `
     + `Plain solid white background, identical lighting and framing. No text, no watermark, single `
