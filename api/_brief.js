@@ -71,10 +71,12 @@ async function analyzeAndBuildPrompts(form) {
           + `client-side. Reason from the fields above only, and don't invent specifics you don't `
           + `have.)\n`)
     + `\n`
-    + `For each of these 4 creative directions, write ONLY the creative concept, concise, 2-3 `
-    + `sentences: the character's form and pose energy, its personality, and a specific named `
-    + `color palette (real colors, not "brand colors"). Do NOT write background, lighting, or `
-    + `technical instructions -- those are handled separately.\n\n`
+    + `For each of these 4 creative directions, write the creative concept, concise, 3-4 `
+    + `sentences, in this exact structure: start with "Mascot concept for ${form.company || 'the brand'}, `
+    + `[one clause on what the product actually does]." then the character's form and silhouette, `
+    + `then its personality, then a specific named color palette (real colors, not "brand `
+    + `colors"). Do NOT write background, lighting, or technical instructions -- those are `
+    + `handled separately and appended after your text.\n\n`
     + `1. ${TECHNICAL_ANGLES[0]}\n2. ${TECHNICAL_ANGLES[1]}\n3. ${TECHNICAL_ANGLES[2]}\n`
     + `4. ${TECHNICAL_ANGLES[3]}\n\n`
     + `Respond ONLY with JSON, no markdown fences, no preamble:\n`
