@@ -1,13 +1,8 @@
 // POST /api/pick-winner
-// Body: { images: [{ data, mimeType }], form: {...} }
+// Body: { images, form, submissionId }
 // Returns: { winnerIndex, reasoning, lockedCharacterBlock }
-//
-// Fully specified against the real, documented Anthropic API
-// (api.anthropic.com/v1/messages, vision content blocks). No guesswork.
-//
-// Images now arrive already base64-encoded straight from Gemini, so the
-// fetch-and-encode round trip this used to need against Magnific's URLs
-// is gone entirely -- one less network call, one less place to break.
+
+const { updateSubmission } = require('./_firebase');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
@@ -18,7 +13,7 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set on the server' });
   }
 
-  const { images, form } = req.body || {};
+  const { images, form, submissionId } = req.body || {};
   if (!Array.isArray(images) || images.length === 0) {
     return res.status(400).json({ error: 'images array required' });
   }
@@ -63,10 +58,22 @@ module.exports = async function handler(req, res) {
     const data = await resp.json();
     const text = (data.content || []).map((c) => c.text || '').join('').trim();
     const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : clean);
+
+    await updateSubmission(submissionId, {
+      winnerIndex: parsed.winnerIndex,
+      winnerReasoning: parsed.reasoning,
+      lockedCharacterBlock: parsed.lockedCharacterBlock,
+      status: 'generating'
+    });
 
     return res.status(200).json(parsed);
   } catch (err) {
+    await updateSubmission(submissionId, {
+      status: 'failed',
+      errorMessage: err.message || String(err)
+    });
     return res.status(500).json({ error: String(err) });
   }
 };

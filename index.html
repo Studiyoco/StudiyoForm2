@@ -485,21 +485,22 @@ async function runPipeline(form){
     throw new Error(errText(variationRes.error)+(detail?' | '+detail:''));
   }
   const images=variationRes.images||[];
+  const submissionId=variationRes.submissionId||null;
   if(images.length===0) throw new Error('All variations failed to generate');
 
   // Stage 2: pick the winner
   setLoading('Reviewing directions...','Scoring against your brief and picking the strongest concept.',2);
   const winner=await fetch('/api/pick-winner',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({images,form})
+    body:JSON.stringify({images,form,submissionId})
   }).then(r=>r.json());
   if(winner.error) throw new Error(errText(winner.error));
 
-  // Stage 3: front pose via Nano Banana Pro
+  // Stage 3: front pose
   setLoading('Building your character...','Rendering the front pose.',3);
   const frontRes=await fetch('/api/generate-poses',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,style:form.style})
+    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,style:form.style,submissionId})
   }).then(r=>r.json());
   if(frontRes.error) throw new Error(errText(frontRes.error));
 

@@ -1,9 +1,13 @@
 // POST /api/generate-poses
-// Body: { lockedCharacterBlock: string, style: string }
-// Returns: { front: { data, mimeType } } -- synchronous, base64 inline.
+// Body: { lockedCharacterBlock, style, submissionId }
+// Returns: { front: { data, mimeType } }
+//
+// After generation: uploads the front image to Firebase Storage and
+// writes the permanent URL + final status 'complete' to Firestore.
 
 const { buildPosePrompt } = require('./_prompt');
 const { generateImage, fetchStyleReference } = require('./_gemini');
+const { updateSubmission, uploadImage } = require('./_firebase');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -11,7 +15,7 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'GOOGLE_API_KEY not set on the server' });
   }
 
-  const { lockedCharacterBlock, style } = req.body || {};
+  const { lockedCharacterBlock, style, submissionId } = req.body || {};
   if (!lockedCharacterBlock) {
     return res.status(400).json({ error: 'lockedCharacterBlock required' });
   }
@@ -23,8 +27,26 @@ module.exports = async function handler(req, res) {
       styleRef ? [styleRef] : [],
       '3:4'
     );
+
+    // Upload to Firebase Storage and store the permanent URL
+    const frontImageUrl = await uploadImage(
+      front.data,
+      front.mimeType,
+      submissionId,
+      'front'
+    );
+
+    await updateSubmission(submissionId, {
+      frontImageUrl,
+      status: 'complete'
+    });
+
     return res.status(200).json({ front });
   } catch (err) {
+    await updateSubmission(submissionId, {
+      status: 'failed',
+      errorMessage: err.message || String(err)
+    });
     return res.status(err.status || 500).json({ error: err.message, body: err.body });
   }
 };
