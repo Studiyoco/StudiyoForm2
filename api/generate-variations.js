@@ -68,3 +68,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: String(err) });
   }
 };
+// redeploy-verification 2026-07-03T12:13:52.950Z
