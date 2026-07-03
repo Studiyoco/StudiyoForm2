@@ -13,6 +13,7 @@
 //                              "<project-id>.appspot.com" or "<project-id>.firebasestorage.app"
 
 const admin = require('firebase-admin');
+const crypto = require('crypto');
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -84,16 +85,32 @@ async function uploadImage(base64Data, mimeType, submissionId, filename) {
     const path = `submissions/${submissionId}/${filename}.${ext}`;
     const file = bucket.file(path);
     const buffer = Buffer.from(base64Data, 'base64');
+
+    // Generate a Firebase download token. This is how Firebase Storage
+    // produces permanent download URLs -- the token goes into object metadata
+    // as firebaseStorageDownloadTokens, and the URL includes it as a query
+    // param. This works regardless of bucket ACL settings (including buckets
+    // with Uniform bucket-level access enabled, where public: true / makePublic()
+    // silently fail or throw because object-level ACLs are disabled).
+    const token = crypto.randomUUID();
+
     await file.save(buffer, {
-      metadata: { contentType: mimeType },
-      public: true
+      metadata: {
+        contentType: mimeType,
+        metadata: {
+          firebaseStorageDownloadTokens: token
+        }
+      }
     });
-    // Construct a stable public URL -- no expiry, no signed-URL complexity.
+
+    // Firebase Storage download URL format -- permanent, no expiry,
+    // works in Firebase console and anywhere else.
     const encodedPath = encodeURIComponent(path);
-    return `https://storage.googleapis.com/${process.env.FIREBASE_STORAGE_BUCKET}/${encodedPath}`;
+    const bucketName = process.env.FIREBASE_STORAGE_BUCKET;
+    return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media&token=${token}`;
   } catch (e) {
     console.error('Storage upload failed:', e.message);
-    return null; // non-fatal
+    return null;
   }
 }
 
