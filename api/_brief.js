@@ -24,7 +24,9 @@ async function analyzeAndBuildPrompts(form) {
 
   const instruction = `You are Studiyo's character strategy director. Read this brief and think `
     + `about it before writing anything -- who uses this product, what feeling gap a mascot fills, `
-    + `what visual territory competitors in this space probably already occupy.\n\n`
+    + `what visual territory competitors in this space probably already occupy, and what color `
+    + `palette actually fits this specific brand and product. Decide the colors yourself, from `
+    + `reasoning about the brief, not from any external reference.\n\n`
     + `Brief:\n`
     + `Company: ${form.company || 'n/a'}\n`
     + `Product: ${form.product || 'n/a'}\n`
@@ -34,11 +36,16 @@ async function analyzeAndBuildPrompts(form) {
     + `Notes: ${form.notes || 'none'}\n\n`
     + `Write exactly 4 distinct image generation prompts for 4 different creative directions: `
     + `one straightforward on-brief read, one lateral unexpected twist, one bold ownable `
-    + `distinguishing feature, one wildcard screenshot-worthy version. Each prompt must be a `
-    + `complete, ready-to-use string that a text-to-image model can run directly, and each MUST `
-    + `incorporate every one of these fixed technical requirements verbatim in spirit, not just `
-    + `paraphrased away:\n\n`
+    + `distinguishing feature, one wildcard screenshot-worthy version. Each prompt must specify `
+    + `an actual color palette (name real colors, not vague terms like "brand colors") that you `
+    + `chose based on the brief, and each must be a complete, ready-to-use string that a `
+    + `text-to-image model can run directly. Each MUST incorporate every one of these fixed `
+    + `technical requirements verbatim in spirit, not just paraphrased away:\n\n`
     + `- Style rendering: ${styleText}\n`
+    + `- A reference image showing this rendering technique will be attached separately. State `
+    + `explicitly in the prompt: "the attached reference image shows shading and rendering `
+    + `technique only, its own color is irrelevant and must be ignored completely, use the colors `
+    + `specified in this prompt instead."\n`
     + `- No outline, no black linework around shapes, colors meet directly\n`
     + `- Real dimensional shading, highlights and shadow shapes must be visible, never a flat `
     + `solid-color silhouette, but not heavy shadows or sharp specular highlights either\n`
@@ -47,7 +54,8 @@ async function analyzeAndBuildPrompts(form) {
     + `- Single character only, no text, no logo, no watermark, square 1:1 aspect ratio\n`
     + `- Avoid: ${AVOID_BASE}\n\n`
     + `Respond ONLY with JSON, no markdown fences, no preamble:\n`
-    + `{"briefAnalysis": "<2-3 sentences on the emotional job and the strategic opening>", `
+    + `{"briefAnalysis": "<2-3 sentences on the emotional job, the strategic opening, and why you `
+    + `chose the palette you chose>", `
     + `"prompts": ["<prompt 1>", "<prompt 2>", "<prompt 3>", "<prompt 4>"]}`;
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
