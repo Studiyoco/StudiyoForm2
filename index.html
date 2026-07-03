@@ -379,6 +379,10 @@
     <h2>Your mascot.</h2>
     <p>Four directions explored, one winner picked. Front and side.</p>
     <div class="pose-grid" id="poseGrid"></div>
+    <div class="prompt-box" style="max-width:640px;margin:32px auto 0;text-align:left;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--line-soft);font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.09em;font-weight:500">Internal · Brief analysis (remove before public launch)</div>
+      <p id="briefAnalysisOut" style="padding:16px;font-size:13.5px;color:var(--ink-dim);line-height:1.6;margin:0"></p>
+    </div>
     <div class="cta-box">
       <h3>Serious about it?</h3>
       <p>Book a call and get a full animated system proposal built around this character.</p>
@@ -454,7 +458,7 @@ function toDataUri(img){
 
 async function runPipeline(form){
   // Stage 1: variations via Nano Banana Pro (synchronous, no polling)
-  setLoading('Exploring directions...','Generating concepts from your brief.');
+  setLoading('Exploring directions...','Analyzing the brief and generating concepts.');
   const variationRes=await fetch('/api/generate-variations',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)
   }).then(r=>r.json());
@@ -474,7 +478,7 @@ async function runPipeline(form){
   setLoading('Building your character...','Rendering the front pose.');
   const frontRes=await fetch('/api/generate-poses',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,style:d.style})
+    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,style:form.style})
   }).then(r=>r.json());
   if(frontRes.error) throw new Error(errText(frontRes.error));
 
@@ -482,11 +486,11 @@ async function runPipeline(form){
   setLoading('Building your character...','Rendering the side pose from the approved front.');
   const sideRes=await fetch('/api/generate-side',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImage:frontRes.front,style:d.style})
+    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImage:frontRes.front,style:form.style})
   }).then(r=>r.json());
   if(sideRes.error) throw new Error(errText(sideRes.error));
 
-  return {front:toDataUri(frontRes.front), side:toDataUri(sideRes.side)};
+  return {front:toDataUri(frontRes.front), side:toDataUri(sideRes.side), briefAnalysis:variationRes.briefAnalysis};
 }
 
 document.getElementById('intake').addEventListener('submit', async (ev)=>{
@@ -506,6 +510,7 @@ document.getElementById('intake').addEventListener('submit', async (ev)=>{
     grid.innerHTML=['front','side'].map(k=>
       `<figure><img src="${poses[k]}" alt="${d.company||'Mascot'} ${k} pose"><figcaption>${k[0].toUpperCase()+k.slice(1)}</figcaption></figure>`
     ).join('');
+    document.getElementById('briefAnalysisOut').textContent=poses.briefAnalysis||'(no analysis returned)';
     showView('resultView');
   }catch(e){
     document.getElementById('errorMsg').textContent=e.message||'The generation pipeline hit an error. Please try again or email hello@studiyo.co.';
