@@ -1,30 +1,18 @@
 // POST /api/generate-side-back
 // Body: { lockedCharacterBlock: string, frontImageUrl: string }
-// Returns: { sideTaskId, backTaskId } — poll via /api/poll-mystic.
+// Returns: { sideTaskId, backTaskId } — poll via /api/poll-task with
+// model 'nano-banana-pro-flash'.
 //
-// Mystic's structure_reference and style_reference fields require base64
-// image data, not URLs (confirmed in the OpenAPI spec: format: byte). The
-// front pose comes back from Magnific as a URL, so it's fetched and
-// re-encoded here before use.
-//
-// Using style_reference rather than structure_reference: structure_reference
-// locks geometry/composition from the reference, which actively fights a
-// request for a different camera angle. style_reference carries aesthetic
-// and identity without locking pose. This is a judgment call, moderate
-// confidence, not a documented guarantee — Mystic's reference system isn't
-// explicitly built for "same character, different angle." Watch the actual
-// output closely on the first real test.
+// Nano Banana Pro Flash's reference_images field takes a plain URL, not
+// base64 — simpler and more reliable than Mystic's structure/style
+// reference split. Each reference image carries a `text` field describing
+// its purpose, used here to make clear this is an identity/style anchor,
+// not a pose to copy exactly, since the whole point is a new camera angle.
 
 const { buildPosePrompt } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
-const MYSTIC_ENDPOINT = 'https://api.magnific.com/v1/ai/mystic';
-
-async function urlToBase64(url) {
-  const r = await fetch(url);
-  const buf = Buffer.from(await r.arrayBuffer());
-  return buf.toString('base64');
-}
+const NANO_BANANA_ENDPOINT = 'https://api.magnific.com/v1/ai/text-to-image/nano-banana-pro-flash';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -37,25 +25,25 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'lockedCharacterBlock and frontImageUrl required' });
   }
 
+  const submit = (pose) => fetch(NANO_BANANA_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'x-magnific-api-key': MAGNIFIC_API_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      prompt: buildPosePrompt(lockedCharacterBlock, pose),
+      aspect_ratio: '3:4',
+      resolution: '1K',
+      reference_images: [{
+        image: frontImageUrl,
+        text: 'Reference for exact character identity, colors, and design. Do not copy this pose or angle, only the character itself.',
+        mime_type: 'image/png'
+      }]
+    })
+  }).then((r) => r.json());
+
   try {
-    const styleReferenceB64 = await urlToBase64(frontImageUrl);
-
-    const submit = (pose) => fetch(MYSTIC_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'x-magnific-api-key': MAGNIFIC_API_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        prompt: buildPosePrompt(lockedCharacterBlock, pose),
-        model: 'flexible',
-        resolution: '2k',
-        aspect_ratio: 'traditional_3_4',
-        style_reference: styleReferenceB64,
-        adherence: 65 // lean toward prompt (the new angle) over pure style copy
-      })
-    }).then((r) => r.json());
-
     const [sideRes, backRes] = await Promise.all([submit('side'), submit('back')]);
     const sideTaskId = sideRes?.data?.task_id;
     const backTaskId = backRes?.data?.task_id;

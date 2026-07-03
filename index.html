@@ -442,12 +442,12 @@ function setLoading(headline,sub){
   document.getElementById('loadingSub').textContent=sub;
 }
 
-async function pollUntilDone(taskIds, onTick){
+async function pollUntilDone(tasks,onTick){
   let results;
-  for(let i=0;i<40;i++){ // ~2-3 minutes at ~4s intervals, generous ceiling for 2k/4k renders
-    const r=await fetch('/api/poll-mystic',{
+  for(let i=0;i<40;i++){
+    const r=await fetch('/api/poll-task',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({taskIds})
+      body:JSON.stringify({tasks})
     }).then(r=>r.json());
     results=r.results;
     if(onTick) onTick(results);
@@ -458,16 +458,17 @@ async function pollUntilDone(taskIds, onTick){
 }
 
 async function runPipeline(form){
-  // Stage 1: ten variations — submit returns immediately, then poll
+  // Stage 1: ten variations via Seedream
   setLoading('Exploring directions...','Generating 10 concepts from your brief.');
   const variationRes=await fetch('/api/generate-variations',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)
   }).then(r=>r.json());
   if(variationRes.error) throw new Error(variationRes.sampleError||variationRes.error);
 
-  const variationResults=await pollUntilDone(variationRes.taskIds,(res)=>{
+  const variationTasks=variationRes.taskIds.map(id=>({id,model:'seedream'}));
+  const variationResults=await pollUntilDone(variationTasks,(res)=>{
     const done=res.filter(r=>r.status==='COMPLETED').length;
-    setLoading('Exploring directions...',`${done} of ${variationRes.taskIds.length} concepts ready.`);
+    setLoading('Exploring directions...',`${done} of ${variationTasks.length} concepts ready.`);
   });
   const imageUrls=variationResults.filter(r=>r.url).map(r=>r.url);
   if(imageUrls.length===0) throw new Error('All variations failed to generate');
@@ -480,14 +481,14 @@ async function runPipeline(form){
   }).then(r=>r.json());
   if(winner.error) throw new Error(winner.error);
 
-  // Stage 3: front pose
+  // Stage 3: front pose via Nano Banana Pro Flash
   setLoading('Building your character...','Rendering the front pose.');
   const frontSubmit=await fetch('/api/generate-poses',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock})
   }).then(r=>r.json());
   if(frontSubmit.error) throw new Error(frontSubmit.error);
-  const [frontResult]=await pollUntilDone([frontSubmit.frontTaskId]);
+  const [frontResult]=await pollUntilDone([{id:frontSubmit.frontTaskId,model:'nano-banana-pro-flash'}]);
   if(!frontResult.url) throw new Error('Front pose failed to generate');
 
   // Stage 4: side + back, chained off the approved front
@@ -497,7 +498,10 @@ async function runPipeline(form){
     body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImageUrl:frontResult.url})
   }).then(r=>r.json());
   if(sideBackSubmit.error) throw new Error(sideBackSubmit.error);
-  const [sideResult,backResult]=await pollUntilDone([sideBackSubmit.sideTaskId,sideBackSubmit.backTaskId]);
+  const [sideResult,backResult]=await pollUntilDone([
+    {id:sideBackSubmit.sideTaskId,model:'nano-banana-pro-flash'},
+    {id:sideBackSubmit.backTaskId,model:'nano-banana-pro-flash'}
+  ]);
 
   return {front:frontResult.url, side:sideResult.url, back:backResult.url};
 }

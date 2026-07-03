@@ -1,11 +1,17 @@
 // POST /api/generate-poses
 // Body: { lockedCharacterBlock: string }
-// Returns: { frontTaskId } — poll via /api/poll-mystic.
+// Returns: { frontTaskId } — poll via /api/poll-task with model 'nano-banana-pro-flash'.
+//
+// Uses Magnific's Nano Banana Pro Flash endpoint (confirmed real, direct
+// from docs.magnific.com/api-reference/text-to-image/nano-banana-pro-flash).
+// Front pose has no reference image; side/back (generate-side-back.js)
+// use this same model with the approved front as reference_images so all
+// three poses share one rendering engine, avoiding style drift.
 
 const { buildPosePrompt } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
-const MYSTIC_ENDPOINT = 'https://api.magnific.com/v1/ai/mystic';
+const NANO_BANANA_ENDPOINT = 'https://api.magnific.com/v1/ai/text-to-image/nano-banana-pro-flash';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -19,7 +25,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const r = await fetch(MYSTIC_ENDPOINT, {
+    const r = await fetch(NANO_BANANA_ENDPOINT, {
       method: 'POST',
       headers: {
         'x-magnific-api-key': MAGNIFIC_API_KEY,
@@ -27,9 +33,8 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         prompt: buildPosePrompt(lockedCharacterBlock, 'front'),
-        model: 'flexible',
-        resolution: '2k',
-        aspect_ratio: 'traditional_3_4'
+        aspect_ratio: '3:4',
+        resolution: '1K'
       })
     }).then((r) => r.json());
 
