@@ -1,14 +1,8 @@
 // POST /api/generate-poses
 // Body: { lockedCharacterBlock: string }
 // Returns: { frontTaskId } — poll via /api/poll-task with model 'nano-banana-pro-flash'.
-//
-// Uses Magnific's Nano Banana Pro Flash endpoint (confirmed real, direct
-// from docs.magnific.com/api-reference/text-to-image/nano-banana-pro-flash).
-// Front pose has no reference image; side/back (generate-side-back.js)
-// use this same model with the approved front as reference_images so all
-// three poses share one rendering engine, avoiding style drift.
 
-const { buildPosePrompt } = require('./_prompt');
+const { buildPosePrompt, safeParseResponse } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
 const NANO_BANANA_ENDPOINT = 'https://api.magnific.com/v1/ai/text-to-image/nano-banana-pro-flash';
@@ -36,10 +30,12 @@ module.exports = async function handler(req, res) {
         aspect_ratio: '3:4',
         resolution: '1K'
       })
-    }).then((r) => r.json());
+    }).then(safeParseResponse);
 
-    const frontTaskId = r?.data?.task_id;
-    if (!frontTaskId) return res.status(502).json({ error: 'No task_id returned', raw: r });
+    const frontTaskId = r.json?.data?.task_id;
+    if (!frontTaskId) {
+      return res.status(502).json({ error: 'No task_id returned', status: r.status, body: r.json || r.text });
+    }
     return res.status(200).json({ frontTaskId });
   } catch (err) {
     return res.status(500).json({ error: String(err) });

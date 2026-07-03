@@ -3,15 +3,12 @@
 // Returns: { taskIds: string[] } — 10 Magnific/Mystic task ids, not done yet.
 // Poll them via /api/poll-task.
 //
-// Reverted from Seedream (Legacy) back to Mystic after the Legacy endpoint
-// returned real 404s from Magnific's own server (confirmed, not guessed —
-// see Vercel function logs). Magnific's own quickstart/getting-started
-// example uses Mystic as its canonical curl sample, strong evidence it's
-// the actively maintained primary endpoint. A current, non-legacy Seedream
-// path can be swapped back in once confirmed; this isn't abandoning that,
-// just not blocking on it.
+// Uses Mystic — Magnific's own quickstart example endpoint, confirmed
+// stable after the Legacy Seedream path returned real 404s.
+// Response parsing goes through safeParseResponse so a gateway-level
+// error (HTML/plain text, not JSON) never gets silently swallowed.
 
-const { buildAllVariationPrompts } = require('./_prompt');
+const { buildAllVariationPrompts, safeParseResponse } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
 const MYSTIC_ENDPOINT = 'https://api.magnific.com/v1/ai/mystic';
@@ -40,26 +37,26 @@ module.exports = async function handler(req, res) {
           },
           body: JSON.stringify({
             prompt,
-            model: 'flexible', // Mystic's own docs: best for illustration, not the 'realism' default
+            model: 'flexible',
             resolution: '1k',
             aspect_ratio: 'traditional_3_4'
           })
-        }).then((r) => r.json())
+        }).then(safeParseResponse)
       )
     );
 
     const taskIds = results
-      .filter((r) => r.status === 'fulfilled')
-      .map((r) => r.value?.data?.task_id)
-      .filter(Boolean);
+      .filter((r) => r.status === 'fulfilled' && r.value.json?.data?.task_id)
+      .map((r) => r.value.json.data.task_id);
 
-    const failed = results.filter((r) => r.status === 'rejected' || !r.value?.data?.task_id);
+    const failed = results.filter((r) => r.status === 'rejected' || !r.value?.json?.data?.task_id);
     if (taskIds.length === 0) {
-      const sample = failed[0]?.reason || failed[0]?.value;
+      const sample = failed[0]?.value || failed[0]?.reason;
       return res.status(502).json({
         error: 'All 10 variation submissions failed',
         failedCount: failed.length,
-        sampleError: sample?.message || JSON.stringify(sample)
+        sampleStatus: sample?.status,
+        sampleError: sample?.json || sample?.text || String(sample)
       });
     }
 
@@ -68,4 +65,3 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: String(err) });
   }
 };
-// redeploy-verification 2026-07-03T12:13:52.950Z

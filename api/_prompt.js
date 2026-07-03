@@ -87,5 +87,21 @@ function buildPosePrompt(lockedBlock, pose) {
     + `colors, text.`;
 }
 
-module.exports = { buildAllVariationPrompts, buildPosePrompt, KIND_MAP, STYLE_MAP };
+module.exports = { buildAllVariationPrompts, buildPosePrompt, KIND_MAP, STYLE_MAP, safeParseResponse };
+
+// Reads a fetch Response as text first, then attempts JSON.parse. Gateway-
+// level errors (502/504/etc) are very often HTML or plain text, not JSON —
+// calling .json() directly on those throws and masks the real error behind
+// a generic parse failure. This always returns something inspectable.
+async function safeParseResponse(response) {
+  const text = await response.text();
+  let parsed = null;
+  try { parsed = JSON.parse(text); } catch (e) { /* not JSON, that's fine */ }
+  return {
+    ok: response.ok,
+    status: response.status,
+    json: parsed,
+    text: parsed ? null : text.slice(0, 500) // cap raw text, gateway error pages can be huge
+  };
+}
 // deploy-verification bump 2026-07-03T12:01:27Z

@@ -1,10 +1,8 @@
 // POST /api/poll-task
-// Body: { tasks: [{ id: string, model: 'seedream' | 'nano-banana-pro-flash' }] }
-// Returns: { done: boolean, results: { id, status, url }[] }
-//
-// Each Magnific product has its own status path (/v1/ai/{product}/{task-id}),
-// so the model name travels with each task id rather than assuming one
-// shared endpoint the way Mystic's single-product version could.
+// Body: { tasks: [{ id: string, model: 'mystic' | 'seedream' | 'nano-banana-pro-flash' }] }
+// Returns: { done: boolean, results: { id, status, url, error? }[] }
+
+const { safeParseResponse } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
 
@@ -26,19 +24,23 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const results = await Promise.all(tasks.map(({ id, model }) => {
+    const results = await Promise.all(tasks.map(async ({ id, model }) => {
       const base = ENDPOINTS[model];
-      if (!base) return Promise.resolve({ id, status: 'FAILED', url: null });
-      return fetch(`${base}/${id}`, {
-        headers: { 'x-magnific-api-key': MAGNIFIC_API_KEY }
-      })
-        .then((r) => r.json())
-        .then((j) => ({
+      if (!base) return { id, status: 'FAILED', url: null, error: `Unknown model: ${model}` };
+      try {
+        const r = await fetch(`${base}/${id}`, {
+          headers: { 'x-magnific-api-key': MAGNIFIC_API_KEY }
+        }).then(safeParseResponse);
+        const status = r.json?.data?.status || 'unknown';
+        return {
           id,
-          status: j.data?.status || 'unknown',
-          url: j.data?.status === 'COMPLETED' ? (j.data?.generated || [])[0] : null
-        }))
-        .catch(() => ({ id, status: 'FAILED', url: null }));
+          status,
+          url: status === 'COMPLETED' ? (r.json?.data?.generated || [])[0] : null,
+          error: status === 'unknown' ? (r.json || r.text) : undefined
+        };
+      } catch (e) {
+        return { id, status: 'FAILED', url: null, error: String(e) };
+      }
     }));
 
     const done = results.every((r) => r.status === 'COMPLETED' || r.status === 'FAILED');
