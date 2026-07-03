@@ -16,7 +16,7 @@ config({
   apiSecret: process.env.HIGGSFIELD_API_SECRET
 });
 
-const MODEL = 'nano_banana_2'; // confirmed real via Higgsfield's own CLI docs; 'nano_banana_pro' was returning 404, not a valid route
+const MODEL = 'bytedance/seedream/v4/text-to-image'; // confirmed real path, direct from higgsfield-client's own README, unlike nano_banana_* which appears to be CLI-only
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
     const results = await Promise.allSettled(
       prompts.map((prompt) =>
         higgsfield.subscribe(MODEL, {
-          input: { prompt, aspect_ratio: '3:4' }
+          input: { prompt, aspect_ratio: '3:4', resolution: '2K' }
         })
       )
     );

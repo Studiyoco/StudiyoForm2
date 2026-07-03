@@ -23,7 +23,7 @@ config({
   apiSecret: process.env.HIGGSFIELD_API_SECRET
 });
 
-const MODEL = 'nano_banana_2'; // see generate-variations.js for why
+const MODEL = 'bytedance/seedream/v4/text-to-image'; // see generate-variations.js
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -40,6 +40,7 @@ module.exports = async function handler(req, res) {
     input: {
       prompt: buildPosePrompt(lockedCharacterBlock, pose),
       aspect_ratio: '3:4',
+      resolution: '2K',
       image_url: frontImageUrl // TODO verify this is the correct field name, see note above
     }
   });

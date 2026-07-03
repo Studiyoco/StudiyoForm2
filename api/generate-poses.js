@@ -10,7 +10,7 @@ config({
   apiSecret: process.env.HIGGSFIELD_API_SECRET
 });
 
-const MODEL = 'nano_banana_2'; // see generate-variations.js for why
+const MODEL = 'bytedance/seedream/v4/text-to-image'; // see generate-variations.js
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -27,7 +27,8 @@ module.exports = async function handler(req, res) {
     const jobSet = await higgsfield.subscribe(MODEL, {
       input: {
         prompt: buildPosePrompt(lockedCharacterBlock, 'front'),
-        aspect_ratio: '3:4'
+        aspect_ratio: '3:4',
+        resolution: '2K'
       }
     });
     const frontUrl = jobSet?.jobs?.[0]?.results?.raw?.url;
