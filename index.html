@@ -462,7 +462,10 @@ async function runPipeline(form){
   const variationRes=await fetch('/api/generate-variations',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)
   }).then(r=>r.json());
-  if(variationRes.error) throw new Error(errText(variationRes.sampleError||variationRes.error));
+  if(variationRes.error){
+    const detail=variationRes.body?errText(variationRes.body):(variationRes.sampleError?errText(variationRes.sampleError):'');
+    throw new Error(errText(variationRes.error)+(detail?' | '+detail:''));
+  }
   const images=variationRes.images||[];
   if(images.length===0) throw new Error('All variations failed to generate');
 
