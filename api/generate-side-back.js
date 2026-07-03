@@ -23,7 +23,7 @@ config({
   apiSecret: process.env.HIGGSFIELD_API_SECRET
 });
 
-const MODEL = 'nano_banana_pro';
+const MODEL = 'nano_banana_2'; // see generate-variations.js for why
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });

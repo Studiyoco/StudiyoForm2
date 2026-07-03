@@ -16,7 +16,7 @@ config({
   apiSecret: process.env.HIGGSFIELD_API_SECRET
 });
 
-const MODEL = 'nano_banana_pro'; // confirmed against live MCP usage this session
+const MODEL = 'nano_banana_2'; // confirmed real via Higgsfield's own CLI docs; 'nano_banana_pro' was returning 404, not a valid route
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
