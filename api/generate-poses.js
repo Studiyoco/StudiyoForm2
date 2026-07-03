@@ -1,9 +1,9 @@
 // POST /api/generate-poses
-// Body: { lockedCharacterBlock: string }
+// Body: { lockedCharacterBlock: string, style: string }
 // Returns: { front: { data, mimeType } } -- synchronous, base64 inline.
 
 const { buildPosePrompt } = require('./_prompt');
-const { generateImage } = require('./_gemini');
+const { generateImage, fetchStyleReference } = require('./_gemini');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -11,15 +11,16 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'GOOGLE_API_KEY not set on the server' });
   }
 
-  const { lockedCharacterBlock } = req.body || {};
+  const { lockedCharacterBlock, style } = req.body || {};
   if (!lockedCharacterBlock) {
     return res.status(400).json({ error: 'lockedCharacterBlock required' });
   }
 
   try {
+    const styleRef = await fetchStyleReference(req.headers.host, style);
     const front = await generateImage(
       buildPosePrompt(lockedCharacterBlock, 'front') + '\n\nPortrait 3:4 aspect ratio.',
-      null,
+      styleRef ? [styleRef] : [],
       '3:4'
     );
     return res.status(200).json({ front });

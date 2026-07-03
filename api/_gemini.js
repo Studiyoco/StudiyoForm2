@@ -21,15 +21,37 @@
 // framing is always honored even if the structured field is ignored or
 // rejected.
 
+const { STYLE_IMAGE_MAP } = require('./_prompt');
+
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const MODEL = 'gemini-3-pro-image-preview';
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
-// referenceImage: optional { data: base64string, mimeType: string }
-async function generateImage(prompt, referenceImage, aspectRatio) {
+// Fetches the deployed style-reference sphere (technique study, not a
+// character illustration) for whatever style the visitor chose, using the
+// request's own host so this works identically in production and preview
+// deployments without a hardcoded domain. Returns null on any failure --
+// a missing style reference should degrade to text-only prompting, not
+// break the whole generation.
+async function fetchStyleReference(host, styleValue) {
+  const filename = STYLE_IMAGE_MAP[styleValue] || STYLE_IMAGE_MAP['Not sure yet'];
+  try {
+    const r = await fetch(`https://${host}/styles/${filename}`);
+    if (!r.ok) return null;
+    const buf = Buffer.from(await r.arrayBuffer());
+    return { data: buf.toString('base64'), mimeType: r.headers.get('content-type') || 'image/jpeg' };
+  } catch (e) {
+    return null;
+  }
+}
+
+// referenceImages: optional array of { data: base64string, mimeType: string }
+async function generateImage(prompt, referenceImages, aspectRatio) {
   const parts = [{ text: prompt }];
-  if (referenceImage) {
-    parts.push({ inlineData: { mimeType: referenceImage.mimeType, data: referenceImage.data } });
+  if (referenceImages && referenceImages.length) {
+    for (const ref of referenceImages) {
+      parts.push({ inlineData: { mimeType: ref.mimeType, data: ref.data } });
+    }
   }
 
   const body = {
@@ -96,4 +118,4 @@ async function generateImage(prompt, referenceImage, aspectRatio) {
   };
 }
 
-module.exports = { generateImage, MODEL };
+module.exports = { generateImage, fetchStyleReference, MODEL };

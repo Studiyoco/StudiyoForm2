@@ -474,7 +474,7 @@ async function runPipeline(form){
   setLoading('Building your character...','Rendering the front pose.');
   const frontRes=await fetch('/api/generate-poses',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock})
+    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,style:d.style})
   }).then(r=>r.json());
   if(frontRes.error) throw new Error(errText(frontRes.error));
 
@@ -482,7 +482,7 @@ async function runPipeline(form){
   setLoading('Building your character...','Rendering the side pose from the approved front.');
   const sideRes=await fetch('/api/generate-side',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImage:frontRes.front})
+    body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImage:frontRes.front,style:d.style})
   }).then(r=>r.json());
   if(sideRes.error) throw new Error(errText(sideRes.error));
 

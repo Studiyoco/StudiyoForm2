@@ -5,7 +5,7 @@
 // Gemini's generateContent returns the image inline in the response.
 
 const { buildAllVariationPrompts } = require('./_prompt');
-const { generateImage } = require('./_gemini');
+const { generateImage, fetchStyleReference } = require('./_gemini');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -23,8 +23,11 @@ module.exports = async function handler(req, res) {
   );
 
   try {
+    const styleRef = await fetchStyleReference(req.headers.host, form.style);
+    const refs = styleRef ? [styleRef] : [];
+
     const results = await Promise.allSettled(
-      prompts.map((prompt) => generateImage(prompt, null, '1:1'))
+      prompts.map((prompt) => generateImage(prompt, refs, '1:1'))
     );
 
     const images = results

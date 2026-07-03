@@ -12,9 +12,24 @@ const KIND_MAP = {
 const STYLE_MAP = {
   '2D flat & minimal': 'flat vector illustration, clean bezier curves, solid color fills, flat 2D highlight shapes for dimension (solid-color highlight shapes, not smooth gradient shading), minimal detail, no gradients',
   'Soft 3D + 2D': 'flat 2D shapes with linear gradient shading for gentle dimensionality, no full 3D render, no cast shadows, no textures',
-  '3D': 'soft 3D render, matte clay-like material, diffused soft lighting with no sharp specular highlights, rounded plush forms, no textures, no photorealism, no glossy plastic',
+  '3D': 'soft 3D render, glossy matte-plush material, smooth continuous gradient shading across '
+    + 'rounded volumes, diffused soft lighting with no sharp specular hotspots, subtle gentle '
+    + 'highlights only, no visible texture, no photorealism, premium toy-like plush finish',
   'Oil pastel': 'oil pastel illustration texture, visible waxy strokes, warm hand-painted feel, soft edges, painterly but still a clean readable character silhouette',
   'Not sure yet': 'flat vector illustration, clean curves, solid fills, flat 2D highlight shapes for dimension, minimal detail'
+};
+
+// Maps the same style chip values to the actual reference image files
+// deployed at /styles/*.jpg (technique-study spheres, not illustrated
+// characters -- deliberately isolates shading approach from character
+// design). Used to attach a real visual reference to generation calls,
+// not just describe the style in text.
+const STYLE_IMAGE_MAP = {
+  '2D flat & minimal': 'flat.jpg',
+  'Soft 3D + 2D': 'soft3d2d.jpg',
+  '3D': '3d.jpg',
+  'Oil pastel': 'oilpastel.jpg',
+  'Not sure yet': 'flat.jpg'
 };
 
 // Shared across every generation regardless of style chosen. "No outline"
@@ -91,4 +106,4 @@ function buildPosePrompt(lockedBlock, pose) {
     + `silhouette, changed colors.`;
 }
 
-module.exports = { buildAllVariationPrompts, buildPosePrompt, KIND_MAP, STYLE_MAP };
+module.exports = { buildAllVariationPrompts, buildPosePrompt, KIND_MAP, STYLE_MAP, STYLE_IMAGE_MAP };
