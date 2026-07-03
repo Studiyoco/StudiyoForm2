@@ -1,8 +1,5 @@
 {
   "name": "studiyo-mascot-intake",
   "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@higgsfield/client": "*"
-  }
+  "private": true
 }
