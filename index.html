@@ -179,8 +179,8 @@
   }
   @keyframes spin{to{transform:rotate(360deg)}}
   .pose-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
-    max-width:640px;margin:44px auto 0;text-align:left;
+    display:grid;grid-template-columns:repeat(2,1fr);gap:16px;
+    max-width:460px;margin:44px auto 0;text-align:left;
   }
   @media(max-width:600px){.pose-grid{grid-template-columns:1fr;max-width:340px}}
   .pose-grid figure{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
@@ -370,7 +370,7 @@
   <div class="done" id="loadingView">
     <div class="spinner"></div>
     <h2 id="loadingHeadline">Exploring directions...</h2>
-    <p id="loadingSub">Generating 10 concepts from your brief.</p>
+    <p id="loadingSub">Generating concepts from your brief.</p>
   </div>
 
   <!-- result -->
@@ -465,13 +465,13 @@ async function pollUntilDone(tasks,onTick){
 
 async function runPipeline(form){
   // Stage 1: ten variations via Seedream
-  setLoading('Exploring directions...','Generating 10 concepts from your brief.');
+  setLoading('Exploring directions...','Generating concepts from your brief.');
   const variationRes=await fetch('/api/generate-variations',{
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)
   }).then(r=>r.json());
   if(variationRes.error) throw new Error(errText(variationRes.sampleError||variationRes.error));
 
-  const variationTasks=variationRes.taskIds.map(id=>({id,model:'mystic'}));
+  const variationTasks=variationRes.taskIds.map(id=>({id,model:'nano-banana-pro-flash'}));
   const variationResults=await pollUntilDone(variationTasks,(res)=>{
     const done=res.filter(r=>r.status==='COMPLETED').length;
     setLoading('Exploring directions...',`${done} of ${variationTasks.length} concepts ready.`);
@@ -497,19 +497,18 @@ async function runPipeline(form){
   const [frontResult]=await pollUntilDone([{id:frontSubmit.frontTaskId,model:'nano-banana-pro-flash'}]);
   if(!frontResult.url) throw new Error('Front pose failed to generate');
 
-  // Stage 4: side + back, chained off the approved front
-  setLoading('Building your character...','Rendering side and back poses from the approved front.');
-  const sideBackSubmit=await fetch('/api/generate-side-back',{
+  // Stage 4: side, chained off the approved front (back dropped for cost)
+  setLoading('Building your character...','Rendering the side pose from the approved front.');
+  const sideSubmit=await fetch('/api/generate-side',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({lockedCharacterBlock:winner.lockedCharacterBlock,frontImageUrl:frontResult.url})
   }).then(r=>r.json());
-  if(sideBackSubmit.error) throw new Error(errText(sideBackSubmit.error));
-  const [sideResult,backResult]=await pollUntilDone([
-    {id:sideBackSubmit.sideTaskId,model:'nano-banana-pro-flash'},
-    {id:sideBackSubmit.backTaskId,model:'nano-banana-pro-flash'}
+  if(sideSubmit.error) throw new Error(errText(sideSubmit.error));
+  const [sideResult]=await pollUntilDone([
+    {id:sideSubmit.sideTaskId,model:'nano-banana-pro-flash'}
   ]);
 
-  return {front:frontResult.url, side:sideResult.url, back:backResult.url};
+  return {front:frontResult.url, side:sideResult.url};
 }
 
 document.getElementById('intake').addEventListener('submit', async (ev)=>{
@@ -526,7 +525,7 @@ document.getElementById('intake').addEventListener('submit', async (ev)=>{
   try{
     const poses=await runPipeline(d);
     const grid=document.getElementById('poseGrid');
-    grid.innerHTML=['front','side','back'].map(k=>
+    grid.innerHTML=['front','side'].map(k=>
       `<figure><img src="${poses[k]}" alt="${d.company||'Mascot'} ${k} pose"><figcaption>${k[0].toUpperCase()+k.slice(1)}</figcaption></figure>`
     ).join('');
     showView('resultView');

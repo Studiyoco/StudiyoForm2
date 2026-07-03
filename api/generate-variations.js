@@ -1,17 +1,17 @@
 // POST /api/generate-variations
 // Body: the form payload from index.html (company, kind, vibe, style, ...)
-// Returns: { taskIds: string[] } — 10 Magnific/Mystic task ids, not done yet.
+// Returns: { taskIds: string[] } — 4 Nano Banana Pro Flash task ids.
 // Poll them via /api/poll-task.
 //
-// Uses Mystic — Magnific's own quickstart example endpoint, confirmed
-// stable after the Legacy Seedream path returned real 404s.
-// Response parsing goes through safeParseResponse so a gateway-level
-// error (HTML/plain text, not JSON) never gets silently swallowed.
+// Switched from Mystic to Nano Banana Pro Flash for cost reasons: one
+// model across the whole pipeline instead of two, and this stage cut
+// from 10 generations to 4 (see VARIATION_ANGLES in _prompt.js). Square
+// 1:1 instead of portrait, cheapest reasonable resolution.
 
 const { buildAllVariationPrompts, safeParseResponse } = require('./_prompt');
 
 const MAGNIFIC_API_KEY = process.env.MAGNIFIC_API_KEY;
-const MYSTIC_ENDPOINT = 'https://api.freepik.com/v1/ai/mystic';
+const NANO_BANANA_ENDPOINT = 'https://api.freepik.com/v1/ai/text-to-image/nano-banana-pro-flash';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
   try {
     const results = await Promise.allSettled(
       prompts.map((prompt) =>
-        fetch(MYSTIC_ENDPOINT, {
+        fetch(NANO_BANANA_ENDPOINT, {
           method: 'POST',
           headers: {
             'x-magnific-api-key': MAGNIFIC_API_KEY,
@@ -37,9 +37,8 @@ module.exports = async function handler(req, res) {
           },
           body: JSON.stringify({
             prompt,
-            model: 'flexible',
-            resolution: '1k',
-            aspect_ratio: 'traditional_3_4'
+            aspect_ratio: '1:1',
+            resolution: '1K'
           })
         }).then(safeParseResponse)
       )
@@ -53,14 +52,14 @@ module.exports = async function handler(req, res) {
     if (taskIds.length === 0) {
       const sample = failed[0]?.value || failed[0]?.reason;
       return res.status(502).json({
-        error: 'All 10 variation submissions failed',
+        error: 'All variation submissions failed',
         failedCount: failed.length,
         sampleStatus: sample?.status,
         sampleError: sample?.json || sample?.text || String(sample)
       });
     }
 
-    return res.status(200).json({ taskIds, model: 'mystic', failed: failed.length });
+    return res.status(200).json({ taskIds, model: 'nano-banana-pro-flash', failed: failed.length });
   } catch (err) {
     return res.status(500).json({ error: String(err) });
   }

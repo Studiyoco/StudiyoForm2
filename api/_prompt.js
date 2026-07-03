@@ -44,14 +44,8 @@ function buildVariationPrompt(form, seedHint) {
 
 // Ten distinct angles so the batch isn't ten near-duplicates of one prompt.
 const VARIATION_ANGLES = [
-  'a safe, straightforward read of the brief',
-  'a slightly bolder take on the same idea',
-  'leans into the vibe words more literally',
-  'a rounder, softer body proportion',
-  'a taller, more upright posture',
+  'a straightforward, on-brief read of the character',
   'an unexpected lateral twist on the form',
-  'more playful, mid-action pose energy',
-  'calmer, more grounded resting pose',
   'a bold, ownable single distinguishing feature',
   'the most surprising, screenshot-worthy version'
 ];
