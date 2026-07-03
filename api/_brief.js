@@ -17,6 +17,7 @@
 // that part isn't generated at all.
 
 const { STYLE_MAP, AVOID_BASE } = require('./_prompt');
+const { fetchWebsiteContext } = require('./_webfetch');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
@@ -42,6 +43,7 @@ function buildTechnicalSuffix(styleText) {
 
 async function analyzeAndBuildPrompts(form) {
   const styleText = STYLE_MAP[form.style] || STYLE_MAP['Not sure yet'];
+  const websiteContext = await fetchWebsiteContext(form.website);
 
   const instruction = `You are Studiyo's character strategy director. Read this brief and think `
     + `about it before writing anything -- who uses this product, what feeling gap a mascot fills, `
@@ -54,7 +56,15 @@ async function analyzeAndBuildPrompts(form) {
     + `Mascot shape feel: ${(form.kind || []).join(', ') || 'Surprise us'}\n`
     + `Vibe: ${(form.vibe || []).join(', ') || 'friendly'}\n`
     + `Where it mostly lives: ${(form.usage || []).join(', ') || 'n/a'}\n`
-    + `Notes: ${form.notes || 'none'}\n\n`
+    + `Notes: ${form.notes || 'none'}\n`
+    + (websiteContext
+        ? `\nReal text pulled directly from their website/app listing (use this, it's actual `
+          + `product copy, not a guess): """${websiteContext}"""\n`
+        : `\n(No usable website content available -- either no link was given, or the page `
+          + `couldn't be read server-side, common for App Store/Play Store listings that render `
+          + `client-side. Reason from the fields above only, and don't invent specifics you don't `
+          + `have.)\n`)
+    + `\n`
     + `For each of these 4 creative directions, write ONLY the creative concept, concise, 2-3 `
     + `sentences: the character's form and pose energy, its personality, and a specific named `
     + `color palette (real colors, not "brand colors"). Do NOT write background, lighting, or `
