@@ -40,11 +40,14 @@ async function generateImage(prompt, referenceImage, aspectRatio) {
     }
   };
 
-  // 35s per-request cap, under the 45s function limit, so a genuine hang
-  // fails with a clear, attributable error instead of taking the whole
-  // function down silently with zero diagnostic information.
+  // 40s per-request cap, under the function limits (45-60s), so a genuine
+  // hang fails with a clear, attributable error instead of taking the
+  // whole function down silently. Raised from an initial 35s after a real
+  // front-pose call hit that boundary exactly -- variations succeeded
+  // within it, so this is headroom for single-call variance, not a
+  // structural fix for a suspected bug.
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 35000);
+  const timeout = setTimeout(() => controller.abort(), 40000);
 
   let res;
   try {
@@ -59,7 +62,7 @@ async function generateImage(prompt, referenceImage, aspectRatio) {
     });
   } catch (e) {
     if (e.name === 'AbortError') {
-      const err = new Error('Gemini request timed out after 35s');
+      const err = new Error('Gemini request timed out after 40s');
       err.status = 504;
       throw err;
     }
