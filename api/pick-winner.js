@@ -33,7 +33,9 @@ module.exports = async function handler(req, res) {
           + `proportions, exact colors, face style, and material, precise enough that another `
           + `image model reproduces this exact character consistently. The character must be a `
           + `solid closed form -- no holes, voids, ring shapes, or negative space cut through `
-          + `the body. Do not describe any gap, tunnel, or hollow that passes through the character.\n\n`
+          + `the body. Do not describe any gap, tunnel, or hollow that passes through the character. `
+          + `IMPORTANT: do not use double-quote characters (") anywhere inside the lockedCharacterBlock `
+          + `value -- use single quotes or rephrase instead, since unescaped quotes break JSON parsing.\n\n`
           + `Respond ONLY with JSON, no markdown fences, no preamble:\n`
           + `{"winnerIndex": <0-based int>, "reasoning": "<2-3 sentences>", "lockedCharacterBlock": "<paragraph>"}`
       },
@@ -61,7 +63,29 @@ module.exports = async function handler(req, res) {
     const text = (data.content || []).map((c) => c.text || '').join('').trim();
     const clean = text.replace(/```json|```/g, '').trim();
     const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : clean);
+    const jsonStr = jsonMatch ? jsonMatch[0] : clean;
+
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonStr);
+    } catch (e) {
+      // Unescaped double quotes inside the lockedCharacterBlock string are the
+      // most common cause (Claude writes descriptions like '"round" eyes' and
+      // the bare quotes break JSON.parse). Extract each field individually
+      // rather than re-parsing the whole blob.
+      const winnerMatch = jsonStr.match(/"winnerIndex"\s*:\s*(\d+)/);
+      const reasoningMatch = jsonStr.match(/"reasoning"\s*:\s*"([\s\S]*?)"\s*,\s*"lockedCharacter/);
+      const blockMatch = jsonStr.match(/"lockedCharacterBlock"\s*:\s*"([\s\S]*?)"\s*\}/);
+
+      if (!winnerMatch || !blockMatch) {
+        throw new Error(`pick-winner parse failed: ${e.message} | preview: ${jsonStr.slice(0, 300)}`);
+      }
+      parsed = {
+        winnerIndex: parseInt(winnerMatch[1]),
+        reasoning: reasoningMatch ? reasoningMatch[1].replace(/\\"/g, '"') : '',
+        lockedCharacterBlock: blockMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
+      };
+    }
 
     await updateSubmission(submissionId, {
       winnerIndex: parsed.winnerIndex,
