@@ -203,26 +203,6 @@
   .cta-box h3{font-size:22px;font-weight:600;margin-bottom:10px;letter-spacing:-.01em}
   .cta-box p{font-size:14.5px;color:var(--ink-dim);margin-bottom:22px}
   .cta-box .btn{padding:15px 28px;font-size:15px}
-  .prompt-box{
-    margin:40px auto 0;max-width:640px;text-align:left;
-    border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;
-  }
-  .prompt-head{
-    display:flex;justify-content:space-between;align-items:center;gap:10px;
-    padding:12px 16px;border-bottom:1px solid var(--line-soft);
-    font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.09em;font-weight:500;
-  }
-  .prompt-head button{
-    font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;
-    border:1px solid var(--line);background:#fff;color:var(--ink-dim);
-    border-radius:100px;padding:6px 14px;transition:all .13s;text-transform:none;letter-spacing:0;
-  }
-  .prompt-head button:hover{border-color:var(--accent);color:var(--accent)}
-  .prompt-box pre{
-    padding:18px;white-space:pre-wrap;word-wrap:break-word;
-    font-size:13.5px;line-height:1.65;color:var(--ink-dim);
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-  }
 
   footer{
     border-top:1px solid var(--line-soft);padding:34px 0 60px;
@@ -393,9 +373,9 @@
     <h2>Your mascot.</h2>
     <p>Two directions explored, one winner picked. Front view.</p>
     <div class="pose-grid" id="poseGrid"></div>
-    <div class="prompt-box" style="max-width:640px;margin:32px auto 0;text-align:left;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden">
-      <div style="padding:12px 16px;border-bottom:1px solid var(--line-soft);font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.09em;font-weight:500">Internal · Brief analysis (remove before public launch)</div>
-      <p id="briefAnalysisOut" style="padding:16px;font-size:13.5px;color:var(--ink-dim);line-height:1.6;margin:0"></p>
+    <div class="ai-notice" style="max-width:580px;margin:32px auto 0;text-align:center;padding:20px 24px;border:1px solid var(--line);border-radius:14px;background:var(--panel)">
+      <p style="font-size:14px;color:var(--ink-dim);line-height:1.6;margin:0 0 14px">This is an AI mockup. Chat with us to get a custom mascot done with our own hands.</p>
+      <a href="https://chat.studiyo.co" target="_blank" rel="noopener" class="btn" style="display:inline-block">Chat with us →</a>
     </div>
     <div class="cta-box">
       <h3>Serious about it?</h3>
@@ -524,7 +504,6 @@ document.getElementById('intake').addEventListener('submit', async (ev)=>{
     const poses=await runPipeline(d);
     const grid=document.getElementById('poseGrid');
     grid.innerHTML=`<figure><img src="${poses.front}" alt="${d.company||'Mascot'} front pose"><figcaption>Front</figcaption></figure>`;
-    document.getElementById('briefAnalysisOut').textContent=poses.briefAnalysis||'(no analysis returned)';
     showView('resultView');
   }catch(e){
     document.getElementById('errorMsg').textContent=e.message||'The generation pipeline hit an error. Please try again or email hello@studiyo.co.';
