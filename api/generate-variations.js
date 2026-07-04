@@ -14,10 +14,10 @@ const { createSubmission, updateSubmission } = require('./_firebase');
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   if (!process.env.GOOGLE_API_KEY) {
-    return res.status(500).json({ error: 'GOOGLE_API_KEY not set on the server' });
+    return res.status(500).json({ error: "Server configuration error" });
   }
   if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set on the server' });
+    return res.status(500).json({ error: "Server configuration error" });
   }
 
   const form = req.body || {};

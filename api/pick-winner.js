@@ -10,7 +10,7 @@ const ANTHROPIC_MODEL = 'claude-sonnet-5';
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   if (!ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set on the server' });
+    return res.status(500).json({ error: "Server configuration error" });
   }
 
   const { images, form, submissionId } = req.body || {};
