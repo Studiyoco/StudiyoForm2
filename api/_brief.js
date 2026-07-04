@@ -82,8 +82,8 @@ async function analyzeAndBuildPrompts(form) {
     + `own and name the competitor cliche it is deliberately avoiding. No emotional job framing.\n\n`
     + `1. ${TECHNICAL_ANGLES[0]}\n2. ${TECHNICAL_ANGLES[1]}\n\n`
     + `Respond ONLY with JSON, no markdown fences, no preamble:\n`
-    + `{"briefAnalysis": "<1-2 sentences: visual territory owned + competitor cliche avoided>", `
-    + `"concepts": ["<3-5 sentences: character form, silhouette, personality-via-physical-trait, specific colors with hex or precise names>", "<3-5 sentences: genuinely different direction, same depth>"]}`;
+    + `{"briefAnalysis": "<visual territory owned + competitor cliche avoided>", `
+    + `"concepts": ["<concept 1: character form, silhouette, personality via physical trait, specific colors>", "<concept 2: genuinely different direction, same specificity>"]}`;
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
