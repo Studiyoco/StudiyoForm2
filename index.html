@@ -163,12 +163,12 @@
 
   .done{display:none;text-align:center;padding:110px 0 140px}
   .done .mark{
-    width:64px;height:64px;border-radius:50%;background:var(--accent-dim);
-    border:1.5px solid var(--accent);margin:0 auto 28px;position:relative;
+    width:64px;height:64px;border-radius:50%;background:#f0faf3;
+    border:1.5px solid #34C759;margin:0 auto 28px;position:relative;
   }
   .done .mark::after{
     content:'';position:absolute;left:23px;top:16px;width:14px;height:26px;
-    border:solid var(--accent);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);
+    border:solid #34C759;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);
   }
   .done h2{font-size:32px;margin-bottom:14px}
   .done p{color:var(--ink-dim);max-width:46ch;margin:0 auto}
@@ -400,15 +400,11 @@
   <div class="done" id="resultView">
     <div class="mark"></div>
     <h2>Your mascot.</h2>
-    <p>Two directions explored, one winner picked. Front view.</p>
+    <p>Four directions explored, one winner picked. Front view.</p>
     <div class="pose-grid" id="poseGrid"></div>
-    <div class="ai-notice" style="max-width:580px;margin:32px auto 0;text-align:center;padding:20px 24px;border:1px solid var(--line);border-radius:14px;background:var(--panel)">
-      <p style="font-size:14px;color:var(--ink-dim);line-height:1.6;margin:0 0 14px">This is an AI mockup. Chat with us to get a custom mascot done with our own hands.</p>
-      <a href="https://chat.studiyo.co" target="_blank" rel="noopener" class="btn" style="display:inline-block">Chat with us →</a>
-    </div>
     <div class="cta-box">
       <h3>Serious about it?</h3>
-      <p>Book a call and get a full animated system proposal built around this character.</p>
+      <p>This is an AI mockup. Book a call and get a custom mascot done with our own hands.</p>
       <a class="btn" id="calBtn" href="https://chat.studiyo.co" target="_blank" rel="noopener">Book a call →</a>
     </div>
   </div>
