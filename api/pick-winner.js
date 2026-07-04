@@ -31,7 +31,9 @@ module.exports = async function handler(req, res) {
           + `small), and emotional range. Pick the single strongest winner. Then write a locked `
           + `character description block: one paragraph under 120 words fixing species/shape, `
           + `proportions, exact colors, face style, and material, precise enough that another `
-          + `image model reproduces this exact character consistently.\n\n`
+          + `image model reproduces this exact character consistently. The character must be a `
+          + `solid closed form -- no holes, voids, ring shapes, or negative space cut through `
+          + `the body. Do not describe any gap, tunnel, or hollow that passes through the character.\n\n`
           + `Respond ONLY with JSON, no markdown fences, no preamble:\n`
           + `{"winnerIndex": <0-based int>, "reasoning": "<2-3 sentences>", "lockedCharacterBlock": "<paragraph>"}`
       },

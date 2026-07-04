@@ -45,7 +45,8 @@ const STYLE_IMAGE_MAP = {
 // every template function that builds a prompt.
 const AVOID_BASE = 'extra limbs, duplicate character, text, background objects, gradient background, '
   + 'cropped body, heavy shadows, realistic materials, black outlines, outlined linework, sharp '
-  + 'specular highlights, existing copyrighted mascots';
+  + 'specular highlights, existing copyrighted mascots, holes or voids in the character body, '
+  + 'negative space cut through the character, donut shapes, ring shapes, hollow forms';
 
 // Locked character block prompt fragment, built from the winner's own
 // description once Claude has picked it (see pick-winner.js).

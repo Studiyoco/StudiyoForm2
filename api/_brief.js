@@ -23,8 +23,10 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_MODEL = 'claude-haiku-4-5';
 
 const TECHNICAL_ANGLES = [
-  'a straightforward, on-brief read of the character',
-  'the most surprising, screenshot-worthy version'
+  'a straightforward, on-brief read: the most immediately recognizable character for this product',
+  'an unexpected lateral twist on the form: different species or body type than the obvious choice',
+  'a bold, single ownable distinguishing feature that makes this character instantly recognizable at 32x32px',
+  'the most surprising, screenshot-worthy version that still fits the brief'
 ];
 
 function buildTechnicalSuffix(styleText) {
@@ -83,10 +85,10 @@ async function analyzeAndBuildPrompts(form) {
     + `sentences. Every sentence must earn its place by adding something specific to this brief.\n\n`
     + `The briefAnalysis field: state what specific visual territory this mascot is designed to `
     + `own and name the competitor cliche it is deliberately avoiding. No emotional job framing.\n\n`
-    + `1. ${TECHNICAL_ANGLES[0]}\n2. ${TECHNICAL_ANGLES[1]}\n\n`
+    + `1. ${TECHNICAL_ANGLES[0]}\n2. ${TECHNICAL_ANGLES[1]}\n3. ${TECHNICAL_ANGLES[2]}\n4. ${TECHNICAL_ANGLES[3]}\n\n`
     + `Respond ONLY with JSON, no markdown fences, no preamble:\n`
     + `{"briefAnalysis": "<visual territory owned + competitor cliche avoided>", `
-    + `"concepts": ["<concept 1: character form, silhouette, personality via physical trait, specific colors>", "<concept 2: genuinely different direction, same specificity>"]}`;
+    + `"concepts": ["<concept 1>", "<concept 2>", "<concept 3>", "<concept 4>"]}`;
 
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
