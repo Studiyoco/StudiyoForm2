@@ -60,6 +60,9 @@ async function analyzeAndBuildPrompts(form) {
     + `Mascot shape feel: ${(form.kind || []).join(', ') || 'Surprise us'}\n`
     + `Vibe: ${(form.vibe || []).join(', ') || 'friendly'}\n`
     + `Where it mostly lives: ${(form.usage || []).join(', ') || 'n/a'}\n`
+    + ((form.colors && form.colors.length)
+        ? `Brand colors chosen by the client (HARD CONSTRAINT -- these colors must appear in the mascot, do not replace them with alternatives): ${form.colors.join(', ')}\n`
+        : `Brand colors: none selected -- choose a palette that fits the product and emotional territory.\n`)
     + `Notes: ${form.notes || 'none'}\n`
     + (websiteContext
         ? `\nReal text pulled directly from their website/app listing (use this, it's actual `

@@ -204,7 +204,15 @@
   .cta-box p{font-size:14.5px;color:var(--ink-dim);margin-bottom:22px}
   .cta-box .btn{padding:15px 28px;font-size:15px}
 
-  footer{
+  .color-swatches{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .cswatch{
+    width:36px;height:36px;border-radius:50%;cursor:pointer;border:2px solid transparent;
+    transition:transform .13s, box-shadow .13s;position:relative;flex-shrink:0;
+  }
+  .cswatch:hover{transform:scale(1.15)}
+  .cswatch.on{border-color:var(--ink);box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--ink)}
+  .cswatch[data-v="#FFFFFF"]{border-color:var(--line)}
+  .cswatch[data-v="#FFFFFF"].on{border-color:var(--ink)}
     border-top:1px solid var(--line-soft);padding:34px 0 60px;
     font-size:13px;color:var(--ink-faint);
     display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
@@ -340,6 +348,27 @@
         </div>
       </div>
       <div>
+        <label class="f-label">Mascot colors <em>· pick up to 2, optional</em></label>
+        <div class="color-swatches" data-multi data-max="2" data-name="colors">
+          <button type="button" class="cswatch" data-v="#FF3B30" style="background:#FF3B30" title="Red"></button>
+          <button type="button" class="cswatch" data-v="#FF6633" style="background:#FF6633" title="Orange-red"></button>
+          <button type="button" class="cswatch" data-v="#FF9500" style="background:#FF9500" title="Orange"></button>
+          <button type="button" class="cswatch" data-v="#FFCC00" style="background:#FFCC00" title="Yellow"></button>
+          <button type="button" class="cswatch" data-v="#34C759" style="background:#34C759" title="Green"></button>
+          <button type="button" class="cswatch" data-v="#00C7BE" style="background:#00C7BE" title="Teal"></button>
+          <button type="button" class="cswatch" data-v="#30B0C7" style="background:#30B0C7" title="Sky blue"></button>
+          <button type="button" class="cswatch" data-v="#007AFF" style="background:#007AFF" title="Blue"></button>
+          <button type="button" class="cswatch" data-v="#5856D6" style="background:#5856D6" title="Indigo"></button>
+          <button type="button" class="cswatch" data-v="#AF52DE" style="background:#AF52DE" title="Purple"></button>
+          <button type="button" class="cswatch" data-v="#FF2D55" style="background:#FF2D55" title="Pink-red"></button>
+          <button type="button" class="cswatch" data-v="#FF6B9D" style="background:#FF6B9D" title="Pink"></button>
+          <button type="button" class="cswatch" data-v="#1C1C1E" style="background:#1C1C1E" title="Black"></button>
+          <button type="button" class="cswatch" data-v="#636366" style="background:#636366" title="Dark grey"></button>
+          <button type="button" class="cswatch" data-v="#8E8E93" style="background:#8E8E93" title="Mid grey"></button>
+          <button type="button" class="cswatch" data-v="#FFFFFF" style="background:#FFFFFF" title="White"></button>
+        </div>
+      </div>
+      <div>
         <label class="f-label">Anything else we should know? <em>· optional</em></label>
         <input type="text" name="notes" placeholder="Deadlines, mascots you love, things to avoid...">
       </div>
@@ -403,9 +432,9 @@ track.innerHTML+=track.innerHTML;
 
 document.querySelectorAll('[data-multi]').forEach(g=>{
   const max = parseInt(g.dataset.max||'99');
-  g.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+  g.querySelectorAll('.chip,.cswatch').forEach(c=>c.addEventListener('click',()=>{
     if(c.classList.contains('on')){c.classList.remove('on');return}
-    if(g.querySelectorAll('.chip.on').length>=max)return;
+    if(g.querySelectorAll('.chip.on,.cswatch.on').length>=max)return;
     c.classList.add('on');
   }));
 });
@@ -421,7 +450,7 @@ function collect(){
   const data={};
   f.querySelectorAll('input[name]').forEach(el=>data[el.name]=el.value.trim());
   document.querySelectorAll('[data-multi],[data-single]').forEach(g=>{
-    data[g.dataset.name]=[...g.querySelectorAll('.chip.on,.scard.on')].map(c=>c.dataset.v?c.dataset.v.replace('&amp;','&'):c.textContent.trim());
+    data[g.dataset.name]=[...g.querySelectorAll('.chip.on,.scard.on,.cswatch.on')].map(c=>c.dataset.v?c.dataset.v.replace('&amp;','&'):c.textContent.trim());
   });
   // style is data-single, form expects a plain string not an array
   data.style=(data.style&&data.style[0])?data.style[0]:'Not sure yet';
