@@ -54,12 +54,17 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model: ANTHROPIC_MODEL,
-        max_tokens: 600,
+        max_tokens: 1500,
         messages: [{ role: 'user', content }]
       })
     });
 
     const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      throw new Error(`Anthropic API error ${resp.status}: ${data.error?.message || resp.statusText}`);
+    }
+
     const text = (data.content || []).map((c) => c.text || '').join('').trim();
     const clean = text.replace(/```json|```/g, '').trim();
     const jsonMatch = clean.match(/\{[\s\S]*\}/);
@@ -78,7 +83,7 @@ module.exports = async function handler(req, res) {
       const blockMatch = jsonStr.match(/"lockedCharacterBlock"\s*:\s*"([\s\S]*?)"\s*\}/);
 
       if (!winnerMatch || !blockMatch) {
-        throw new Error(`pick-winner parse failed: ${e.message} | preview: ${jsonStr.slice(0, 300)}`);
+        throw new Error(`pick-winner parse failed: ${e.message} | stopReason: ${data.stop_reason} | contentBlockTypes: ${JSON.stringify((data.content||[]).map(c=>c.type))} | preview: ${jsonStr.slice(0, 400)}`);
       }
       parsed = {
         winnerIndex: parseInt(winnerMatch[1]),
